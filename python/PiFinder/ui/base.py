@@ -203,7 +203,7 @@ class UIModule:
                Returns true if hotkey found
                false if not or no config
         """
-        if self._config_options == None:
+        if self._config_options is None:
             return False
 
         for config_item_name, config_item in self._config_options.items():

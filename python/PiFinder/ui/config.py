@@ -41,7 +41,7 @@ class UIConfig(UIModule):
     def update(self, force=False):
         # clear screen
         self.draw.rectangle([0, 0, 128, 128], fill=self.colors.get(0))
-        if self.__config == None:
+        if self.__config is None:
             self.draw.text(
                 (20, 18), "No Config", font=self.font_base, fill=self.colors.get(255)
             )
@@ -178,7 +178,7 @@ class UIConfig(UIModule):
                     selected_item["value"].remove("None")
 
             # Now that we have set config, see if there is a callback
-            if selected_item.get("callback") != None:
+            if selected_item.get("callback") is not None:
                 callback_method = getattr(self.__module, selected_item["callback"])
                 exit_config = callback_method(selected_item["value"])
                 if exit_config:
@@ -203,7 +203,7 @@ class UIConfig(UIModule):
                 time.sleep(1)
                 # okay, reset and release
                 self.__selected_item = None
-                if selected_item.get("callback") != None:
+                if selected_item.get("callback") is not None:
                     callback_method = getattr(self.__module, selected_item["callback"])
                     exit_config = callback_method(selected_item["value"])
                     if exit_config:

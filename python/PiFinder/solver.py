@@ -46,7 +46,7 @@ def solver(shared_state, solver_queue, camera_image, console_queue):
                 if total_tetra_time > 1000:
                     console_queue.put(f"SLV: Long: {total_tetra_time}")
 
-                if solved["RA"] != None:
+                if solved["RA"] is not None:
                     if last_image_metadata["imu"]:
                         solved["imu_pos"] = last_image_metadata["imu"]["pos"]
                     else:

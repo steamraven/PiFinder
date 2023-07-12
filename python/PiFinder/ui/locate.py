@@ -108,7 +108,7 @@ class UILocate(UIModule):
             else:
                 self.message("No History", 1)
 
-        if self.target_index != None:
+        if self.target_index is not None:
             self.ui_state["target"] = self.ui_state["active_list"][self.target_index]
             self.update_object_text()
 
@@ -225,7 +225,7 @@ class UILocate(UIModule):
         self.draw.text((0, 20), line, font=self.font_large, fill=self.colors.get(255))
 
         # Target history index
-        if self.target_index != None:
+        if self.target_index is not None:
             if self.ui_state["active_list"] == self.ui_state["history_list"]:
                 list_name = "Hist"
             else:
@@ -300,7 +300,7 @@ class UILocate(UIModule):
         return self.screen_update()
 
     def scroll_target_history(self, direction):
-        if self.target_index != None:
+        if self.target_index is not None:
             self.target_index += direction
             if self.target_index >= len(self.ui_state["active_list"]):
                 self.target_index = len(self.ui_state["active_list"]) - 1

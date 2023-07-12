@@ -417,7 +417,7 @@ def main(script_name=None):
                 except queue.Empty:
                     keycode = None
 
-                if keycode != None:
+                if keycode is not None:
                     logging.debug(f"Keycode: {keycode}")
                     power_save_warmup = time.time() + get_sleep_timeout(cfg)
                     set_brightness(screen_brightness, cfg)
@@ -507,7 +507,7 @@ def main(script_name=None):
                                 ) as f:
                                     json.dump(debug_location, f, indent=4)
 
-                                if debug_dt != None:
+                                if debug_dt is not None:
                                     with open(
                                         f"{test_image_path}/{uid}_datetime.json", "w"
                                     ) as f:
@@ -573,7 +573,7 @@ def main(script_name=None):
                 if get_sleep_timeout(cfg):
                     # make sure that if there is a sleep
                     # time configured, the power_save_warmup is reset
-                    if power_save_warmup == None:
+                    if power_save_warmup is None:
                         power_save_warmup = time.time() + get_sleep_timeout(cfg)
 
                     _imu = shared_state.imu()

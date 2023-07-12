@@ -59,7 +59,7 @@ class Imu:
         if self.calibration == 0:
             return True
         quat = self.sensor.quaternion
-        if quat[0] == None:
+        if quat[0] is None:
             print("IMU: Failed to get sensor values")
             return
 
@@ -124,5 +124,5 @@ def imu_monitor(shared_state, console_queue):
                 imu_calibrated = True
                 console_queue.put("IMU: NDOF Calibrated!")
 
-        if shared_state != None and imu_calibrated:
+        if shared_state is not None and imu_calibrated:
             shared_state.set_imu(imu_data)
