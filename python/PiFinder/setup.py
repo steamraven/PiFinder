@@ -913,6 +913,7 @@ def load_ngc_catalog():
             common_name = ls[1][:-1]
             catalog = "M"
             sequence = ls[0][1:]
+            comment = ""
 
             if sequence != "":
                 q = f"""
