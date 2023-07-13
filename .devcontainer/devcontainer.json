@@ -1,0 +1,19 @@
+{
+	"image": "mcr.microsoft.com/devcontainers/universal:2",
+	"features": {
+		"ghcr.io/devcontainers-contrib/features/black:2": {
+			"version": "latest"
+		}
+	},
+	"postCreateCommand": " /opt/python/3.10.8/bin/python3.10 -m pip install --cache-dir /usr/local/share/pip-cache --prefer-binary -r requirements.txt -r requirements_dev.txt --target=/home/codespace/.local/lib/python3.10/site-packages --upgrade",
+	"customizations": {
+		// Configure properties specific to VS Code.
+		"vscode": {
+		  // Add the IDs of extensions you want installed when the container is created.
+		  "extensions": [
+			"eamodio.gitlens",
+			"ms-python.python"
+		  ]
+		}
+	  }
+}
