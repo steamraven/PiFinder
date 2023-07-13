@@ -779,6 +779,7 @@ def load_ngc_catalog():
         with open(ngc_dat, "r") as ngc:
             for l in ngc:
                 add = True
+                sequence = int(l[1:5])
                 catalog = l[0:1]
                 if catalog == " " or catalog == "N":
                     catalog = "NGC"
@@ -790,7 +791,6 @@ def load_ngc_catalog():
                     else:
                         add = False
 
-                sequence = int(l[1:5])
                 if add:
                     obj_type = l[6:9].strip()
                     rah = int(l[10:12])
