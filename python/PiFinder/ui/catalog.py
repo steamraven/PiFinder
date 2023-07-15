@@ -343,7 +343,7 @@ class UICatalog(UIModule):
                     if obj_altitude:
                         if obj_altitude < 10:
                             # Not really visible
-                            magsize.set_color = self.colors.get(128)
+                            magsize.set_color(self.colors.get(128))
 
                 magsize.draw((0, 62))
 
