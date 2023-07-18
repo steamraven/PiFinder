@@ -20,13 +20,12 @@ from PiFinder.camera_interface import CameraInterface
 from typing import Dict, Tuple
 import logging
 
+import zwoasi as asi
 
 class CameraASI(CameraInterface):
     """The camera class for PI cameras.  Implements the CameraInterface interface."""
 
     def __init__(self, exposure_time, gain) -> None:
-        import zwoasi as asi
-
         # find a camera
         # asi.init("/lib/zwoasi/armv7/libASICamera2.so")  # Initialize the ASI library
         asi.init(
@@ -34,14 +33,14 @@ class CameraASI(CameraInterface):
         )  # Initialize the ASI library
         num_cameras = asi.get_num_cameras()  # Get the number of connected cameras
         if num_cameras == 0:
-            self.handpad.display("Error:", " no camera found", "")
+            #self.handpad.display("Error:", " no camera found", "")
             self.camType = "not found"
             logging.info("camera not found")
             time.sleep(1)
         else:
             asi.list_cameras()
             self.initialize()
-            self.handpad.display("ZWO camera found", "", "")
+            #self.handpad.display("ZWO camera found", "", "")
             logging.info("ZWO camera found")
             time.sleep(1)
         self.camType = "ZWO"
@@ -73,8 +72,8 @@ class CameraASI(CameraInterface):
         return Image.fromarray(self.camera.capture().astype("uint8"), "RGB")
 
     def capture_file(self, filename) -> None:
-        self.camera.set_control_value(asi.ASI_GAIN, gain)
-        self.camera.set_control_value(asi.ASI_EXPOSURE, exposure_time)  # microseconds
+        self.camera.set_control_value(asi.ASI_GAIN, self.gain)
+        self.camera.set_control_value(asi.ASI_EXPOSURE, self.exposure_time)  # microseconds
         self.camera.capture(filename=filename)
 
     def set_camera_config(
