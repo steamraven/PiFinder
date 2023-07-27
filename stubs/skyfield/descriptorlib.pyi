@@ -1,0 +1,6 @@
+from _typeshed import Incomplete
+
+class reify:
+    method: Incomplete
+    def __init__(self, method) -> None: ...
+    def __get__(self, instance, objtype: Incomplete | None = ...): ...
