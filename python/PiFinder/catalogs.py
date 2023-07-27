@@ -226,7 +226,7 @@ class CatalogDesignator:
 class CatalogTracker:
     object_tracker: dict[str, Optional[int]]
     designator_tracker: dict[str, CatalogDesignator]
-    current: Catalog
+    current_catalog: Catalog
     current_catalog_name: str
 
     def __init__(self, catalog_names: list[str], shared_state:SharedStateObj, config_options: ConfigOptions):
@@ -342,7 +342,7 @@ class CatalogTracker:
         if catalogs is None:
             catalog_list = [self.current_catalog]
         else:
-            catalog_list = [self.catalogs.get(key) for key in catalogs]
+            catalog_list = [self.catalogs[key] for key in catalogs if key in self.catalogs]
         return catalog_list
 
     def filter(self, catalogs:Optional[list[str]]=None):

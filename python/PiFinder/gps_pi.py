@@ -32,6 +32,8 @@ def gps_monitor(gps_queue:"Queue[tuple[str, Union[Location, str]]]", console_que
                                 "lat": session.fix.latitude,
                                 "lon": session.fix.longitude,
                                 "altitude": session.fix.altitude,
+                                "timezone": None,
+                                "gps_lock": gps_locked,
                             },
                         )
                         gps_queue.put(msg)

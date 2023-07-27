@@ -200,7 +200,7 @@ class UILocate(UIModule):
     def active(self):
         try:
             self.target_index = self.ui_state["active_list"].index(
-                self.ui_state["target"]
+                self.ui_state["target"]       # type: ignore : None will also cause value error
             )
         except ValueError:
             self.target_index = None

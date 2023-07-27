@@ -48,7 +48,7 @@ class CameraPI(CameraInterface):
         return self.camera.capture_image()
 
     def capture_file(self, filename: str) -> None:
-        return self.camera.capture_file(filename)
+        self.camera.capture_file(filename)
 
     def set_camera_config(
         self, exposure_time: float, gain: float

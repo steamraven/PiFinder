@@ -16,8 +16,8 @@ MOVE_CHECK_LEN = 10
 Quaternion = tuple[float,float,float,float]
 
 class Imu:
-    moving = False
-    flip = False
+    __moving = False
+    __flip = False
 
     def __init__(self):
         pass
@@ -27,7 +27,7 @@ class Imu:
         Compares most recent reading
         with past readings
         """
-        return self.moving
+        return self.__moving
 
     def flip(self, quat: Quaternion):
         """
@@ -35,7 +35,7 @@ class Imu:
         with past readings and find
         and filter anomolies
         """
-        return self.flip
+        return self.__flip
 
     def update(self):
         # Throw out non-calibrated data

@@ -40,8 +40,8 @@ class UIModule:
         camera_image: Image.Image,
         shared_state: SharedStateObj,
         command_queues: dict[str, "Queue[str]"],
-        ui_state={},
-        config_object=None,
+        ui_state: UIState,
+        config_object:Config,
     ):
         self.title = self.__title__
         self.switch_to = None

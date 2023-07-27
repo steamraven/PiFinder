@@ -191,6 +191,7 @@ def main(script_name: Optional[str] = None):
         "observing_list": [],
         "target": None,
         "message_timeout": 0,
+        "active_list": []
     }
     ui_state["active_list"] = ui_state["history_list"]
 

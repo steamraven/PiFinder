@@ -93,8 +93,8 @@ def fetch_object_image(catalog_object: CatObject, low_cut:int=10) -> bool:
     Returns image path
     """
     print(f"Fetching image for {catalog_object['catalog']}{catalog_object['sequence']}")
-    ra = catalog_object["RA"]
-    dec = catalog_object["Dec"]
+    ra = catalog_object["ra"]
+    dec = catalog_object["dec"]
 
     object_image_path = resolve_image_name(catalog_object, "POSS")
     if not os.path.exists(object_image_path):

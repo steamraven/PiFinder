@@ -147,6 +147,7 @@ class UICatalog(UIModule):
         # Reset any sequence....
         if not self.catalog_tracker.does_filtered_have_current_object():
             self.delete()
+        return True
 
     def push_cat(self, obj_amount: str):
         self._config_options["Push Cat."]["value"] = ""
@@ -238,7 +239,7 @@ class UICatalog(UIModule):
             # Magnitude / Size
             # try to get object mag to float
             try:
-                obj_mag = float(cat_object["mag"])
+                obj_mag = str(float(cat_object["mag"]))
             except (ValueError, TypeError):
                 obj_mag = "-" if cat_object["mag"] == "" else cat_object["mag"]
 
