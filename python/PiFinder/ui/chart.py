@@ -124,12 +124,12 @@ class UIChart(UIModule):
         fov = self.fov_list[self.fov_index]
         for circ_deg in [4, 2, 0.5]:
             circ_rad = ((circ_deg / fov) * 128) / 2
-            bbox = [
+            bbox = (
                 64 - circ_rad,
                 64 - circ_rad,
                 64 + circ_rad,
                 64 + circ_rad,
-            ]
+            )
             self.draw.arc(bbox, 20, 70, fill=self.colors.get(brightness))
             self.draw.arc(bbox, 110, 160, fill=self.colors.get(brightness))
             self.draw.arc(bbox, 200, 250, fill=self.colors.get(brightness))
@@ -167,7 +167,7 @@ class UIChart(UIModule):
                 self.last_update = last_solve_time
 
         else:
-            self.draw.rectangle([0, 0, 128, 128], fill=self.colors.get(0))
+            self.draw.rectangle((0, 0, 128, 128), fill=self.colors.get(0))
             self.draw.text(
                 (18, 20), "Can't plot", font=self.font_large, fill=self.colors.get(255)
             )

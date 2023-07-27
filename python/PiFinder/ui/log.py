@@ -149,7 +149,7 @@ class UILog(UIModule):
 
     def update(self, force: bool=False):
         # Clear Screen
-        self.draw.rectangle([0, 0, 128, 128], fill=self.colors.get(0))
+        self.draw.rectangle((0, 0, 128, 128), fill=self.colors.get(0))
 
         if self.modal_text:
             if time.time() - self.modal_timer > self.modal_duration:
@@ -233,17 +233,17 @@ class UILog(UIModule):
         )
 
         # Bottom button help
-        self.draw.rectangle([0, 118, 40, 128], fill=self.colors.get(32))
+        self.draw.rectangle((0, 118, 40, 128), fill=self.colors.get(32))
         self.draw.text((2, 117), "B", font=self.font_small, fill=self.colors.get(255))
         self.draw.text(
             (10, 117), "Log", font=self.font_small, fill=self.colors.get(128)
         )
-        self.draw.rectangle([44, 118, 84, 128], fill=self.colors.get(32))
+        self.draw.rectangle((44, 118, 84, 128), fill=self.colors.get(32))
         self.draw.text((46, 117), "C", font=self.font_small, fill=self.colors.get(255))
         self.draw.text(
             (54, 117), "Photo", font=self.font_small, fill=self.colors.get(128)
         )
-        self.draw.rectangle([88, 118, 128, 128], fill=self.colors.get(32))
+        self.draw.rectangle((88, 118, 128, 128), fill=self.colors.get(32))
         self.draw.text((90, 117), "D", font=self.font_small, fill=self.colors.get(255))
         self.draw.text(
             (98, 117), "Abort", font=self.font_small, fill=self.colors.get(128)

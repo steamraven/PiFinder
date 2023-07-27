@@ -314,7 +314,7 @@ class UICatalog(UIModule):
 
     def update(self, force:bool=True):
         # Clear Screen
-        self.draw.rectangle([0, 0, 128, 128], fill=self.colors.get(0))
+        self.draw.rectangle((0, 0, 128, 128), fill=self.colors.get(0))
         cat_object = self.catalog_tracker.get_current_object()
 
         if self.object_display_mode in [DM_DESC, DM_OBS] or cat_object is None:

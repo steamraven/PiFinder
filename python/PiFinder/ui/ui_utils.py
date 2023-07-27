@@ -164,10 +164,10 @@ class TextLayouterScroll(TextLayouterSimple):
 class TextLayouter(TextLayouterSimple):
     """To be used as a multi-line text with down scrolling"""
 
-    shorttop = [48, 125, 80, 125]
-    shortbottom = [48, 126, 80, 126]
-    longtop = [32, 125, 96, 125]
-    longbottom = [32, 126, 96, 126]
+    shorttop = (48, 125, 80, 125)
+    shortbottom = (48, 126, 80, 126)
+    longtop = (32, 125, 96, 125)
+    longbottom = (32, 126, 96, 126)
     downarrow = (longtop, shortbottom)
     uparrow = (shorttop, longbottom)
 
@@ -208,13 +208,13 @@ class TextLayouter(TextLayouterSimple):
         therange = endy - starty
         blockextent = math.floor((self.available_lines / self.nr_lines) * therange)
         blockstart = ((self.pointer) / self.nr_lines) * therange
-        start = [xpos, starty, xpos, endy]
-        end = [
+        start = (xpos, starty, xpos, endy)
+        end = (
             xpos,
             math.floor(starty + blockstart),
             xpos,
             math.floor(starty + blockstart + blockextent),
-        ]
+        )
         self.drawobj.line(start, fill=self.colors.get(64), width=1)
         self.drawobj.line(end, fill=self.colors.get(128), width=1)
 

@@ -115,12 +115,12 @@ class UIPreview(UIModule):
         fov = 10.2
         for circ_deg in [4, 2, 0.5]:
             circ_rad = ((circ_deg / fov) * 128) / 2
-            bbox = [
+            bbox = (
                 64 - circ_rad,
                 64 - circ_rad,
                 64 + circ_rad,
                 64 + circ_rad,
-            ]
+            )
             self.draw.arc(bbox, 20, 70, fill=self.colors.get(brightness))
             self.draw.arc(bbox, 110, 160, fill=self.colors.get(brightness))
             self.draw.arc(bbox, 200, 250, fill=self.colors.get(brightness))

@@ -238,7 +238,7 @@ class UIStatus(UIModule):
 
     def update(self, force: bool=False):
         self.update_status_dict()
-        self.draw.rectangle([0, 0, 128, 128], fill=self.colors.get(0))
+        self.draw.rectangle((0, 0, 128, 128), fill=self.colors.get(0))
         lines: list[str] = []
         for k, v in self.status_dict.items():
             line = f"{k: >7}:{v: >10}"

@@ -83,7 +83,7 @@ class UIConsole(UIModule):
         if self.dirty:
             if self.welcome:
                 # Clear / write just top line
-                self.draw.rectangle([0, 0, 128, 16], fill=self.colors.get(0))
+                self.draw.rectangle((0, 0, 128, 16), fill=self.colors.get(0))
                 self.draw.text(
                     (0, 1),
                     self.lines[-1],
@@ -93,7 +93,7 @@ class UIConsole(UIModule):
                 return self.screen_update(title_bar=False)
             else:
                 # clear screen
-                self.draw.rectangle([0, 0, 128, 128], fill=self.colors.get(0))
+                self.draw.rectangle((0, 0, 128, 128), fill=self.colors.get(0))
                 for i, line in enumerate(self.lines[-10 - self.scroll_offset :][:10]):
                     self.draw.text(
                         (0, i * 10 + 20),

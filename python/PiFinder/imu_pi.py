@@ -93,7 +93,7 @@ class Imu:
                 self.__moving = True
 
     def get_euler(self) -> IMUPos:
-        return list(self.quat_to_euler(self.avg_quat))
+        return tuple(self.quat_to_euler(self.avg_quat))
 
 
 def imu_monitor(shared_state: Optional[SharedStateObj], console_queue: "Queue[str]" ) -> NoReturn:

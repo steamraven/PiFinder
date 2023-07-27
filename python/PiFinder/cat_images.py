@@ -106,11 +106,11 @@ def get_display_image(catalog_object: SimpleCatObject, source: str, fov: float, 
         # circle
         _circle_dim = Image.new("RGBA", (128, 128), colors.get(127))
         _circle_draw = ImageDraw.Draw(_circle_dim)
-        _circle_draw.ellipse([2, 2, 126, 126], fill=colors.get(255))
+        _circle_draw.ellipse((2, 2, 126, 126), fill=colors.get(255))
         return_image = ImageChops.multiply(return_image, _circle_dim)
 
         ri_draw = ImageDraw.Draw(return_image)
-        ri_draw.ellipse([2, 2, 126, 126], outline=colors.get(64), width=1)
+        ri_draw.ellipse((2, 2, 126, 126), outline=colors.get(64), width=1)
 
         # Outlined text on image source and fov
         ui_utils.shadow_outline_text(

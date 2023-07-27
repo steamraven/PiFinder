@@ -134,10 +134,10 @@ class UIModule:
         """
 
         self.draw.rectangle(
-            [10, 49, 128, 89], fill=self.colors.get(0), outline=self.colors.get(0)
+            (10, 49, 128, 89), fill=self.colors.get(0), outline=self.colors.get(0)
         )
         self.draw.rectangle(
-            [5, 44, 123, 84], fill=self.colors.get(0), outline=self.colors.get(128)
+            (5, 44, 123, 84), fill=self.colors.get(0), outline=self.colors.get(128)
         )
         message = " " * int((16 - len(message)) / 2) + message
         self.draw.text((9, 54), message, font=self.font_bold, fill=self.colors.get(255))
@@ -154,7 +154,7 @@ class UIModule:
             return None
 
         if title_bar:
-            self.draw.rectangle([0, 0, 128, 16], fill=self.colors.get(64))
+            self.draw.rectangle((0, 0, 128, 16), fill=self.colors.get(64))
             self.draw.text(
                 (6, 1), self.title, font=self.font_bold, fill=self.colors.get(0)
             )
@@ -174,7 +174,7 @@ class UIModule:
                     bg = int(64 - (time_since_solve / 6 * 64))
                     if bg < 0:
                         bg = 0
-                    self.draw.rectangle([115, 2, 125, 14], fill=self.colors.get(bg))
+                    self.draw.rectangle((115, 2, 125, 14), fill=self.colors.get(bg))
                     self.draw.text(
                         (117, 0),
                         solution["solve_source"][0],
@@ -183,7 +183,7 @@ class UIModule:
                     )
                 else:
                     # no solve yet....
-                    self.draw.rectangle([115, 2, 125, 14], fill=self.colors.get(0))
+                    self.draw.rectangle((115, 2, 125, 14), fill=self.colors.get(0))
                     self.draw.text(
                         (117, 0), "X", font=self.font_bold, fill=self.colors.get(64)
                     )
@@ -195,7 +195,7 @@ class UIModule:
                 else:
                     fg = self.colors.get(64)
                     bg = self.colors.get(0)
-                self.draw.rectangle([100, 2, 110, 14], fill=bg)
+                self.draw.rectangle((100, 2, 110, 14), fill=bg)
                 self.draw.text((102, 0), "G", font=self.font_bold, fill=fg)
 
         screen_to_display = self.screen.convert(self.display.mode)

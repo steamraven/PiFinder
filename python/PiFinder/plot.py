@@ -129,11 +129,11 @@ class Starfield:
 
             if symbol == "target":
                 idraw.line(
-                    [x_pos, y_pos - 5, x_pos, y_pos + 5],
+                    (x_pos, y_pos - 5, x_pos, y_pos + 5),
                     fill=self.colors.get(255),
                 )
                 idraw.line(
-                    [x_pos - 5, y_pos, x_pos + 5, y_pos],
+                    (x_pos - 5, y_pos, x_pos + 5, y_pos),
                     fill=self.colors.get(255),
                 )
 
@@ -155,7 +155,7 @@ class Starfield:
                     )
                     ret_image = ImageChops.add(ret_image, _image)
 
-        return ret_image.rotate(roll).crop([64, 64, 192, 192])
+        return ret_image.rotate(roll).crop((64, 64, 192, 192))
 
     def plot_starfield(self, ra: float, dec: float, roll: float, constellation_brightness: int=32):
         """
@@ -175,7 +175,7 @@ class Starfield:
 
         stars["x"], stars["y"] = projection(self.star_positions)
         pil_image = self.render_starfield_pil(stars, constellation_brightness)
-        return pil_image.rotate(roll).crop([64, 64, 192, 192])
+        return pil_image.rotate(roll).crop((64, 64, 192, 192))
 
     def render_starfield_pil(self, stars: pandas.DataFrame, constellation_brightness: int):
         target_size = 128
@@ -206,7 +206,7 @@ class Starfield:
                 end_x = end_pos[0] * pixel_scale + target_size
                 end_y = end_pos[1] * -1 * pixel_scale + target_size
                 idraw.line(
-                    [start_x, start_y, end_x, end_y], fill=(constellation_brightness)
+                    (start_x, start_y, end_x, end_y), fill=(constellation_brightness)
                 )
 
         for x, y, mag in zip(stars["x"], stars["y"], stars["magnitude"]):
@@ -228,12 +228,12 @@ class Starfield:
                         idraw.point((x_pos, y_pos), fill=fill)
                     else:
                         idraw.ellipse(
-                            [
+                            (
                                 x_pos - plot_size,
                                 y_pos - plot_size,
                                 x_pos + plot_size,
                                 y_pos + plot_size,
-                            ],
+                            ),
                             fill=(255),
                         )
         return ret_image.convert("RGBA")

@@ -209,7 +209,7 @@ class UILocate(UIModule):
     def update(self, force: bool =False):
         time.sleep(1 / 30)
         # Clear Screen
-        self.draw.rectangle([0, 0, 128, 128], fill=self.colors.get(0))
+        self.draw.rectangle((0, 0, 128, 128), fill=self.colors.get(0))
 
         if not self.ui_state["target"]:
             self.draw.text(
