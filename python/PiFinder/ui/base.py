@@ -32,7 +32,7 @@ ConfigOptions = dict[str, ConfigOption]
 class UIModule:
     __title__ = "BASE"
     __uuid__ = str(uuid.uuid1()).split("-")[0]
-    _config_options = None
+    _config_options: ConfigOptions = {}
 
     def __init__(
         self,
@@ -217,9 +217,6 @@ class UIModule:
                Returns true if hotkey found
                false if not or no config
         """
-        if self._config_options is None:
-            return False
-
         for config_item_name, config_item in self._config_options.items():
             if config_item.get("hotkey") == key:
                 self.cycle_config(config_item_name)
