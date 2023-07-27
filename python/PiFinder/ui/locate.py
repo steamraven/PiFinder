@@ -251,7 +251,7 @@ class UILocate(UIModule):
 
         # Pointing Instructions
         point_az, point_alt = self.aim_degrees()
-        if not point_az:
+        if point_az is None or point_alt is None:
             self.draw.text(
                 (0, 50), " ---.-", font=self.font_huge, fill=self.colors.get(255)
             )

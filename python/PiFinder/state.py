@@ -75,7 +75,7 @@ class UIState(TypedDict):
 class SharedStateObj:
     def __init__(self):
         self.__power_state: int = 1
-        self.__solve_state = None
+        self.__solve_state = False
         self.__last_image_metadata: ImageMetadata = {
             "exposure_start": 0,
             "exposure_end": 0,

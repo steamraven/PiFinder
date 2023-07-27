@@ -180,7 +180,7 @@ class UIConfig(UIModule):
                     selected_item["value"].remove("None")
 
             # Now that we have set config, see if there is a callback
-            if selected_item.get("callback") is not None:
+            if "callback" in selected_item:
                 callback_method = getattr(self.__module, selected_item["callback"])
                 exit_config = callback_method(selected_item["value"])
                 if exit_config:
@@ -205,7 +205,7 @@ class UIConfig(UIModule):
                 time.sleep(1)
                 # okay, reset and release
                 self.__selected_item = None
-                if selected_item.get("callback") is not None:
+                if "callback" in selected_item:
                     callback_method = getattr(self.__module, selected_item["callback"])
                     exit_config = callback_method(selected_item["value"])
                     if exit_config:

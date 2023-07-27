@@ -133,7 +133,7 @@ def integrator(shared_state: SharedStateObj, solver_queue: "Queue[PartialSolutio
             "Alt": None,
             "Az": None,
             "solve_source": None,
-            "solve_time": None,
+            "solve_time": 0,
             "cam_solve_time": 0,
             "constellation": None,
         }
@@ -193,7 +193,7 @@ def integrator(shared_state: SharedStateObj, solver_queue: "Queue[PartialSolutio
             # generate new solution by offsetting last camera solve
             # if we don't have an alt/az solve
             # we can't use the IMU
-            if solved["Alt"]:
+            if solved["Alt"] is not None:
                 imu = shared_state.imu()
                 if imu:
                     dt = shared_state.datetime()
@@ -232,7 +232,7 @@ def integrator(shared_state: SharedStateObj, solver_queue: "Queue[PartialSolutio
                                 # solved["solve_source"] = "IMU"
 
             # Is the solution new?
-            if solved["RA"] and solved["solve_time"] > last_solve_time:
+            if solved["RA"] is not None and solved["solve_time"] > last_solve_time:
                 assert solved["Dec"] is not None, "RA and Dec are set by solver"
                 last_solve_time = time.time()
                 # Update remaining solved keys
