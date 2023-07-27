@@ -55,6 +55,7 @@ from PiFinder.image_util import (
 
 
 hardware_platform = "Pi"
+headless = False
 display_device: DeviceWrapper = DeviceWrapper(None, RED_RGB)
 keypad_pwm = None
 
@@ -62,6 +63,31 @@ keypad_pwm = None
 def init_display():
     global display_device
     global hardware_platform
+    global headless
+
+    if headless:
+        from luma.emulator.device import capture
+        from tempfile import TemporaryDirectory
+        from os.path import join
+
+        logging.getLogger("luma.emulator.device").setLevel(logging.WARNING)
+
+        headless = TemporaryDirectory()  # save object. Directory cleaned when garbage collected
+        filename = join(headless.name, "PiFinder.png")
+        logging.info(f"Outputing images to {filename}")
+        device = capture(
+            width=128,
+            height=128,
+            rotate=0,
+            mode="RGBA",
+            transform="scale2x",
+            scale=2,
+            file_template=filename
+        )
+        
+        display_device = DeviceWrapper(device, RED_RGB)
+        return
+
 
     if hardware_platform == "Fake":
         from luma.emulator.device import pygame
@@ -676,10 +702,16 @@ if __name__ == "__main__":
         "-x", "--verbose", help="Set logging to debug mode", action="store_true"
     )
     parser.add_argument("-l", "--log", help="Log to file", action="store_true")
+    parser.add_argument("--headless", help="Do not use a display", action="store_true")
     args = parser.parse_args()
     # add the handlers to the logger
     if args.verbose:
         logger.setLevel(logging.DEBUG)
+
+    if args.headless:
+        args.fakehardware = True
+        args.keyboard = "server"
+        headless = True
 
     if args.fakehardware:
         hardware_platform = "Fake"
