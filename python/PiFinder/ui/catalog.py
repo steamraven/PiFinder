@@ -5,6 +5,7 @@ This module contains all the UI Module classes
 
 """
 import time
+from typing import Any, Union, cast
 
 from PiFinder import solver, obslog, cat_images
 from PiFinder.obj_types import OBJ_TYPES
@@ -18,12 +19,15 @@ from PiFinder.ui.ui_utils import (
     SpaceCalculatorFixed,
 )
 from PiFinder.catalogs import (
+    CatalogDesignator,
     CatalogTracker,
 )
 from PiFinder import calc_utils
 import functools
 import sqlite3
 import logging
+
+from PiFinder.state import CatObject
 
 
 # Constants for display modes
@@ -75,7 +79,7 @@ class UICatalog(UIModule):
         },
     }
 
-    def __init__(self, *args):
+    def __init__(self, *args: Any): #TODO: expand arg list
         super().__init__(*args)
         self.catalog_names = self.config_object.get_option("catalogs")
         self.object_text = ["No Object Found"]
@@ -134,7 +138,7 @@ class UICatalog(UIModule):
         scrollspeed = self._config_options["Scrolling"]["value"]
         return scroll_dict[scrollspeed]
 
-    def update_config(self):
+    def update_config(self) -> bool:
         if self.texts.get("aka"):
             self.texts["aka"].set_scrollspeed(self._get_scrollspeed_config())
         # re-filter if needed
@@ -144,7 +148,7 @@ class UICatalog(UIModule):
         if not self.catalog_tracker.does_filtered_have_current_object():
             self.delete()
 
-    def push_cat(self, obj_amount):
+    def push_cat(self, obj_amount: str):
         self._config_options["Push Cat."]["value"] = ""
         if obj_amount == "Go":
             self.message("Catalog Pushed", 2)
@@ -159,7 +163,7 @@ class UICatalog(UIModule):
         else:
             return False
 
-    def push_near(self, obj_amount):
+    def push_near(self, obj_amount: Union[str, int]):
         self._config_options["Near Obj."]["value"] = ""
         if obj_amount != "CANCEL":
             solution = self.shared_state.solution()
@@ -254,7 +258,7 @@ class UICatalog(UIModule):
             )
 
             if aka_recs:
-                aka_list = []
+                aka_list: list[str] = []
                 for rec in aka_recs:
                     if rec["common_name"].startswith("M"):
                         aka_list.insert(0, rec["common_name"])
@@ -308,7 +312,7 @@ class UICatalog(UIModule):
             )
             self.update_object_info()
 
-    def update(self, force=True):
+    def update(self, force:bool=True):
         # Clear Screen
         self.draw.rectangle([0, 0, 128, 128], fill=self.colors.get(0))
         cat_object = self.catalog_tracker.get_current_object()
@@ -407,7 +411,7 @@ class UICatalog(UIModule):
             self.catalog_tracker.filter()
 
     # duplicate code in Catalog, but this is a bit different
-    def calc_object_altitude(self, obj):
+    def calc_object_altitude(self, obj: CatObject):
         solution = self.shared_state.solution()
         location = self.shared_state.location()
         dt = self.shared_state.datetime()
@@ -426,7 +430,7 @@ class UICatalog(UIModule):
 
         return None
 
-    def find_by_designator(self, designator):
+    def find_by_designator(self, designator: CatalogDesignator):
         """
         Searches the loaded catalog for the designator
         """
@@ -444,7 +448,7 @@ class UICatalog(UIModule):
             self.catalog_tracker.get_designator().set_number(searching_for)
         return False
 
-    def key_number(self, number):
+    def key_number(self, number: int):
         if self.object_display_mode in [DM_DESC, DM_OBS]:
             designator = self.catalog_tracker.get_designator()
             designator.append_number(number)
@@ -468,7 +472,7 @@ class UICatalog(UIModule):
             self.ui_state["active_list"] = self.ui_state["history_list"]
             self.switch_to = "UILocate"
 
-    def scroll_obj(self, direction):
+    def scroll_obj(self, direction: int):
         """
         Looks for the next object up/down
         sets the sequence and object
@@ -478,7 +482,7 @@ class UICatalog(UIModule):
         self.catalog_tracker.next_object(direction)
         self.update_object_info()
 
-    def change_fov(self, direction):
+    def change_fov(self, direction:int):
         self.fov_index += direction
         if self.fov_index < 0:
             self.fov_index = 0

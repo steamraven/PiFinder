@@ -1,25 +1,28 @@
 from PIL import Image, ImageDraw, ImageFont, ImageChops, ImageOps
 import PiFinder.utils as utils
-from PiFinder.ui.fonts import Fonts as fonts
-from typing import Tuple, List, Dict, Optional
+from PiFinder.ui.fonts import Fonts as fonts, Font
+from PiFinder.image_util import Color, Colors
+from typing import Union, Literal, Optional
 import textwrap
 import logging
 import re
 import math
 
+Coords = tuple[int, int]
+Align = Union[Literal["left"], Literal["right"], Literal["center"]]
 
 class SpaceCalculator:
     """Calculates spaces for proportional fonts, obsolete"""
 
-    def __init__(self, draw, width):
+    def __init__(self, draw: ImageDraw.ImageDraw, width: int):
         self.draw = draw
         self.width = width
         pass
 
-    def _calc_string(self, left, right, spaces) -> str:
+    def _calc_string(self, left:str, right:str, spaces:int) -> str:
         return f"{left}{'':.<{spaces}}{right}"
 
-    def calculate_spaces(self, left, right) -> Tuple[int, str]:
+    def calculate_spaces(self, left:str, right:str) -> tuple[int, str]:
         """
         returns number of spaces
         """
@@ -40,13 +43,13 @@ class SpaceCalculator:
 class SpaceCalculatorFixed:
     """Calculates spaces for fixed-width fonts"""
 
-    def __init__(self, nr_chars):
+    def __init__(self, nr_chars: int):
         self.width = nr_chars
 
-    def _calc_string(self, left, right, spaces) -> str:
+    def _calc_string(self, left:str, right:str, spaces:int) -> str:
         return f"{left}{'': <{spaces}}{right}"
 
-    def calculate_spaces(self, left: str, right: str) -> Tuple[int, str]:
+    def calculate_spaces(self, left: str, right: str) -> tuple[int, str]:
         """
         returns number of spaces
         """
@@ -66,37 +69,37 @@ class TextLayouterSimple:
     def __init__(
         self,
         text: str,
-        draw,
-        color,
-        font=fonts.base,
-        width=fonts.base_width,
+        draw: ImageDraw.ImageDraw,
+        color: Color,
+        font:Font = fonts.base,
+        width:int=fonts.base_width,
     ):
         self.text = text
         self.font = font
         self.color = color
         self.width = width
         self.drawobj = draw
-        self.object_text: List[str] = []
+        self.object_text: list[str] = []
         self.updated = True
 
-    def set_text(self, text):
+    def set_text(self, text:str):
         self.text = text
         self.updated = True
 
-    def set_color(self, color):
+    def set_color(self, color: Color):
         self.color = color
         self.updated = True
 
-    def layout(self, pos: Tuple[int, int] = (0, 0)):
+    def layout(self, pos: tuple[int, int] = (0, 0)):
         if self.updated:
-            self.object_text: List[str] = [self.text]
+            self.object_text: list[str] = [self.text]
             self.updated = False
 
-    def after_draw(self, pos):
+    def after_draw(self, pos: Coords):
         """draw stuff on top of the text"""
         pass
 
-    def draw(self, pos: Tuple[int, int] = (0, 0)):
+    def draw(self, pos: Coords = (0, 0)):
         self.layout(pos)
         # logging.debug(f"Drawing {self.object_text=}")
         self.drawobj.multiline_text(
@@ -118,11 +121,11 @@ class TextLayouterScroll(TextLayouterSimple):
     def __init__(
         self,
         text: str,
-        draw,
-        color,
-        font=fonts.base,
-        width=fonts.base_width,
-        scrollspeed=MEDIUM,
+        draw: ImageDraw.ImageDraw,
+        color: Color,
+        font: Font=fonts.base,
+        width: int=fonts.base_width,
+        scrollspeed: int=MEDIUM,
     ):
         self.pointer = 0
         self.textlen = len(text)
@@ -140,10 +143,10 @@ class TextLayouterScroll(TextLayouterSimple):
         self.scrollspeed = float(scrollspeed)
         self.counter = 0
 
-    def layout(self, pos: Tuple[int, int] = (0, 0)):
+    def layout(self, pos: tuple[int, int] = (0, 0)):
         if self.textlen > self.width and self.scrollspeed > 0:
             if self.counter == 0:
-                self.object_text: List[str] = [
+                self.object_text: list[str] = [
                     self.dtext[self.pointer : self.pointer + self.width]
                 ]
                 self.pointer = (self.pointer + 1) % (self.textlen + 6)
@@ -154,7 +157,7 @@ class TextLayouterScroll(TextLayouterSimple):
             else:
                 self.counter = (self.counter + self.scrollspeed) % self.counter_max
         elif self.updated:
-            self.object_text: List[str] = [self.text]
+            self.object_text: list[str] = [self.text]
             self.updated = False
 
 
@@ -171,12 +174,12 @@ class TextLayouter(TextLayouterSimple):
     def __init__(
         self,
         text: str,
-        draw,
-        color,
-        colors,
-        font=fonts.base,
-        width=fonts.base_width,
-        available_lines=3,
+        draw: ImageDraw.ImageDraw,
+        color: Color,
+        colors: Colors,
+        font: Font=fonts.base,
+        width: int=fonts.base_width,
+        available_lines: int=3,
     ):
         super().__init__(text, draw, color, font, width)
         self.nr_lines = 0
@@ -193,12 +196,12 @@ class TextLayouter(TextLayouterSimple):
         self.pointer = (self.pointer + 1) % (self.nr_lines - self.available_lines + 1)
         self.scrolled = True
 
-    def set_text(self, text):
+    def set_text(self, text: str):
         super().set_text(text)
         self.pointer = 0
         self.nr_lines = len(text)
 
-    def _draw_pos(self, pos):
+    def _draw_pos(self, pos: Coords):
         xpos = 127
         starty = pos[1] + 1
         endy = 127
@@ -215,7 +218,7 @@ class TextLayouter(TextLayouterSimple):
         self.drawobj.line(start, fill=self.colors.get(64), width=1)
         self.drawobj.line(end, fill=self.colors.get(128), width=1)
 
-    def layout(self, pos: Tuple[int, int] = (0, 0)):
+    def layout(self, pos: Coords = (0, 0)):
         if self.updated:
             # logging.debug(f"Updating {self.text=}")
             split_lines = re.split(r"\n|\n\n", self.text)
@@ -232,13 +235,13 @@ class TextLayouter(TextLayouterSimple):
         self.updated = False
         self.scrolled = False
 
-    def after_draw(self, pos):
+    def after_draw(self, pos: Coords):
         if self.nr_lines > self.available_lines:
             self._draw_pos(pos)
 
 
 def shadow_outline_text(
-    ri_draw, xy, text, align, font, fill, shadow_color, shadow=None, outline=None
+    ri_draw: ImageDraw.ImageDraw, xy: Coords, text:str, align:Align, font: Font, fill: Color, shadow_color: Color, shadow:Optional[Coords]=None, outline:Optional[int]=None
 ):
     """draw shadowed and outlined text"""
     print("shadow_outline_text")
@@ -265,7 +268,7 @@ def shadow_outline_text(
         )
 
 
-def outline_text(ri_draw, xy, text, align, font, fill, shadow_color, stroke=4):
+def outline_text(ri_draw: ImageDraw.ImageDraw, xy: Coords, text: str, align: Align, font: Font, fill: Color, shadow_color: Color, stroke:int=4):
     """draw outline text"""
     x, y = xy
     ri_draw.text(
@@ -279,7 +282,7 @@ def outline_text(ri_draw, xy, text, align, font, fill, shadow_color, stroke=4):
     )
 
 
-def shadow(ri_draw, xy, text, align, font, fill, shadowcolor):
+def shadow(ri_draw: ImageDraw.ImageDraw, xy: Coords, text: str, align: Align, font: Font, fill: Color, shadowcolor: Color):
     """draw shadowed text"""
     x, y = xy
     # thin border

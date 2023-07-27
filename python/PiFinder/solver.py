@@ -9,16 +9,30 @@ This module is the solver
 """
 import time
 import logging
+from typing import cast, Optional
+from typing_extensions import TypedDict, NotRequired
+from multiprocessing import Queue
 
 from PiFinder.tetra3 import Tetra3
 from PiFinder import utils
+from PiFinder.state import IMUPos, SharedStateObj, PartialSolution
+from PIL.Image import Image
 
 
-def solver(shared_state, solver_queue, camera_image, console_queue):
+class Solving(TypedDict):
+    RA: Optional[float]     # set by tetra3
+    Dec: Optional[float]    # set by tetra3
+    imu_pos: NotRequired[Optional[IMUPos]]  # set by this function
+    solve_time: NotRequired[Optional[float]]  # set by this function
+    cam_solve_time: NotRequired[float]  # set by this function
+    T_extract: NotRequired[float]   # set by tetra3
+    T_solve: NotRequired[float]     # set by tetra3
+
+def solver(shared_state: SharedStateObj, solver_queue: "Queue[PartialSolution]", camera_image: Image, console_queue: "Queue[str]"):
     logging.getLogger("tetra3.Tetra3").addHandler(logging.NullHandler())
     t3 = Tetra3(utils.astro_data_dir / "pifinder_fov10-5_m7_hip.npz")
     last_solve_time = 0
-    solved = {
+    solved: Solving = {
         "RA": None,
         "Dec": None,
         "imu_pos": None,

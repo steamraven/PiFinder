@@ -1,12 +1,15 @@
 import time
+from typing import NoReturn
+from multiprocessing import Queue
 from PiFinder.keyboard_interface import KeyboardInterface
+from PiFinder.state import SharedStateObj
 import logging
 from PIL import Image
 import io
 
 
 class KeyboardServer(KeyboardInterface):
-    def __init__(self, q, shared_state):
+    def __init__(self, q: "Queue[int]", shared_state: SharedStateObj) -> NoReturn:
         from bottle import Bottle, run, request, template, response
 
         self.q = q
@@ -69,9 +72,9 @@ class KeyboardServer(KeyboardInterface):
         logging.info("Starting keyboard server on port 8080")
         run(app, host="0.0.0.0", port=8080, quiet=True)
 
-    def callback(self, key):
+    def callback(self, key: int):
         self.q.put(key)
 
 
-def run_keyboard(q, shared_state):
+def run_keyboard(q: "Queue[int]", shared_state: SharedStateObj) -> NoReturn:
     KeyboardServer(q, shared_state)

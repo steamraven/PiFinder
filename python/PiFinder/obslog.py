@@ -7,6 +7,7 @@ class
 
 """
 import datetime
+from typing import Any, Optional, Union, cast
 import pytz
 import time
 import os
@@ -15,6 +16,7 @@ import json
 
 from PiFinder.obj_types import OBJ_TYPES
 from PiFinder.setup import create_logging_tables, get_observations_database
+from PiFinder.state import CatObject, SharedStateObj, Solution
 
 
 class Observation_session:
@@ -25,7 +27,7 @@ class Observation_session:
     with multiple objects observed
     """
 
-    def __init__(self, shared_state, session_uuid):
+    def __init__(self, shared_state: SharedStateObj, session_uuid: str):
         # make sure observation db exists
         create_logging_tables()
         conn, db_c = get_observations_database()
@@ -89,7 +91,7 @@ class Observation_session:
 
         return self.__session_uuid
 
-    def log_object(self, catalog, sequence, solution, notes):
+    def log_object(self, catalog: str, sequence: int, solution: Optional[Solution], notes: dict[str, Any]) -> Union[tuple[str,int], tuple[None, None]]:
         session_uuid = self.session_uuid()
         if not session_uuid:
             print("Could not create session")
@@ -135,7 +137,7 @@ class Observation_session:
         return session_uuid, observation_id
 
 
-def get_logs_for_object(obj_record):
+def get_logs_for_object(obj_record:CatObject):
     """
     Returns a list of observations for a particular object
     """
@@ -154,7 +156,7 @@ def get_logs_for_object(obj_record):
     return logs
 
 
-def get_observed_objects():
+def get_observed_objects() -> list[tuple[str,int]]:
     """
     Returns a list of all observed objects
     """

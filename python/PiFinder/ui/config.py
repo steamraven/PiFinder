@@ -5,9 +5,11 @@ This module contains all the UI Module classes
 
 """
 import time
+from typing import Any, Optional, cast, Union
 
 from PiFinder.ui.base import UIModule
 
+Value = Union[str, int, float, list[Union[str,int,float]]]
 
 class UIConfig(UIModule):
     """
@@ -20,8 +22,8 @@ class UIConfig(UIModule):
 
     __title__ = "OPTIONS"
 
-    def __init__(self, *args):
-        self.__module = None
+    def __init__(self, *args: Any): #TODO: expand arg list
+        self.__module: Optional[UIModule] = None
         self.__selected_item = None
         self.__selected_item_key = None
         super().__init__(*args)
@@ -29,7 +31,7 @@ class UIConfig(UIModule):
     def get_module(self):
         return self.__module
 
-    def set_module(self, module):
+    def set_module(self, module: UIModule):
         """
         Sets the module to configure
         """
@@ -38,7 +40,7 @@ class UIConfig(UIModule):
         if self.__config:
             self.__item_names = list(self.__config.keys())
 
-    def update(self, force=False):
+    def update(self, force: bool=False):
         # clear screen
         self.draw.rectangle([0, 0, 128, 128], fill=self.colors.get(0))
         if self.__config is None:
@@ -152,7 +154,7 @@ class UIConfig(UIModule):
         # any selected item
         self.__selected_item = None
 
-    def key_number(self, number):
+    def key_number(self, number: int):
         if self.__selected_item:
             # select the option
             selected_item = self.__config[self.__selected_item]

@@ -6,6 +6,8 @@ to handle catalog image loading
 """
 import sqlite3
 import os
+from typing import Literal, Union, cast
+from typing_extensions import TypedDict
 from PIL import Image, ImageChops, ImageDraw
 from PiFinder import image_util
 from PiFinder.ui.fonts import Fonts as fonts
@@ -15,8 +17,17 @@ import PiFinder.ui.ui_utils as ui_utils
 BASE_IMAGE_PATH = f"{utils.data_dir}/catalog_images"
 CATALOG_PATH = f"{utils.astro_data_dir}/pifinder_objects.db"
 
+class SimpleCatObject(TypedDict):
+    catalog: str
+    sequence: int
 
-def get_ngc_aka(catalog_object):
+class AKA(TypedDict):
+    common_name: str
+
+Coords = tuple[int, int]
+Align = Union[Literal["left"], Literal["right"], Literal["center"]]
+
+def get_ngc_aka(catalog_object: SimpleCatObject):
     """
     returns the NGC aka for this object
     if available
@@ -36,7 +47,7 @@ def get_ngc_aka(catalog_object):
     return aka_rec
 
 
-def get_display_image(catalog_object, source, fov, roll, colors):
+def get_display_image(catalog_object: SimpleCatObject, source: str, fov: float, roll: float, colors: image_util.Colors) -> Image.Image:
     """
     Returns a 128x128 image buffer for
     the catalog object/source
@@ -127,7 +138,7 @@ def get_display_image(catalog_object, source, fov, roll, colors):
     return return_image
 
 
-def resolve_image_name(catalog_object, source):
+def resolve_image_name(catalog_object: SimpleCatObject, source: str):
     """
     returns the image path for this objects
     """

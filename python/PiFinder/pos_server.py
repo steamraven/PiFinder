@@ -8,9 +8,11 @@ Protocol based on Meade LX200
 """
 import socket
 from math import modf
+from typing import NoReturn
+from PiFinder.state import SharedStateObj
 
 
-def get_telescope_ra(shared_state):
+def get_telescope_ra(shared_state: SharedStateObj):
     """
     Extract RA from current solution
     format for LX200 protocol
@@ -29,7 +31,7 @@ def get_telescope_ra(shared_state):
     return f"{hh:02.0f}:{mm:02.0f}:{ss:02.0f}"
 
 
-def get_telescope_dec(shared_state):
+def get_telescope_dec(shared_state: SharedStateObj):
     """
     Extract DEC from current solution
     format for LX200 protocol
@@ -52,15 +54,15 @@ def get_telescope_dec(shared_state):
     return f"{sign}{hh:02.0f}*{mm:02.0f}'{ss:02.0f}"
 
 
-def respond_none(shared_state):
+def respond_none(shared_state: SharedStateObj):
     return None
 
 
-def not_implemented(shared_state):
+def not_implemented(shared_state: SharedStateObj):
     return "not implemented"
 
 
-def run_server(shared_state, _):
+def run_server(shared_state: SharedStateObj, _: None) -> NoReturn:
     """
     Answers request with info from shared state
     """

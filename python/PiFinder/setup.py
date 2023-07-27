@@ -9,15 +9,14 @@ from PiFinder.obj_types import OBJ_DESCRIPTORS
 from pathlib import Path
 import PiFinder.utils as utils
 import csv
-from typing import Tuple
 import argparse
 import logging
 import datetime
 
 
 def get_database(
-    db_path, delete: bool = False, must_exist: bool = False
-) -> Tuple[Connection, Cursor]:
+    db_path: Path, delete: bool = False, must_exist: bool = False
+) -> tuple[Connection, Cursor]:
     if not db_path.exists() and must_exist:
         logging.info(f"DB {db_path} does not exist")
         raise FileNotFoundError
@@ -38,11 +37,11 @@ def get_database(
     return conn, db_c
 
 
-def get_pifinder_database() -> Tuple[Connection, Cursor]:
+def get_pifinder_database() -> tuple[Connection, Cursor]:
     return get_database(utils.pifinder_db)
 
 
-def get_observations_database() -> Tuple[Connection, Cursor]:
+def get_observations_database() -> tuple[Connection, Cursor]:
     return get_database(utils.observations_db)
 
 
@@ -88,17 +87,17 @@ def create_logging_tables(force_delete: bool = False):
 
 
 # TODO not used atm + do we really want to auto-expand the ngc descriptions?
-def decode_description(description):
+def decode_description(description: str):
     """
     decodes comma seperated descriptors
     """
-    result = []
+    result: list[str] = []
     codes = description.split(",")
     for code in codes:
         code = code.strip()
         decode = OBJ_DESCRIPTORS.get(code, code)
         if decode == code:
-            sub_result = []
+            sub_result: list[str] = []
             # try splitting on spaces..
             for sub_code in code.split(" "):
                 decode = OBJ_DESCRIPTORS.get(sub_code, sub_code)
@@ -163,7 +162,7 @@ def init_catalog_tables():
     conn.close()
 
 
-def ra_to_deg(ra_h, ra_m, ra_s):
+def ra_to_deg(ra_h: float, ra_m: float, ra_s:float) -> float:
     ra_deg = ra_h
     if ra_m > 0:
         ra_deg += ra_m / 60
@@ -174,7 +173,7 @@ def ra_to_deg(ra_h, ra_m, ra_s):
     return ra_deg
 
 
-def dec_to_deg(dec, dec_m, dec_s):
+def dec_to_deg(dec: float, dec_m: float, dec_s: float) -> float:
     dec_deg = abs(dec)
 
     if dec_m > 0:
@@ -187,12 +186,12 @@ def dec_to_deg(dec, dec_m, dec_s):
     return dec_deg
 
 
-def delete_catalog_from_database(db_c, catalog):
+def delete_catalog_from_database(db_c: Cursor, catalog: str):
     db_c.execute(f"delete from objects where catalog='{catalog}'")
     db_c.execute(f"delete from names where catalog='{catalog}'")
 
 
-def count_rows_per_distinct_column(conn, db_c, table, column):
+def count_rows_per_distinct_column(conn: Connection, db_c: Cursor, table: str, column: str):
     db_c.execute(f"SELECT {column}, COUNT(*) FROM {table} GROUP BY {column}")
     result = db_c.fetchall()
     for row in result:
@@ -200,7 +199,7 @@ def count_rows_per_distinct_column(conn, db_c, table, column):
     conn.close()
 
 
-def count_empty_entries(conn, db_c, table, columns):
+def count_empty_entries(conn: Connection, db_c: Cursor, table: str, columns: list[str]):
     db_c = conn.cursor()
     for column in columns:
         db_c.execute(
@@ -273,11 +272,11 @@ def load_deepmap_600():
         "CatNotes",
         "UserNotes",
     ]
-    obj_list = []
+    obj_list: list[dict[str,str]] = []
     with open(data_path, "r") as deepmap:
         field_index = 0
         for l in deepmap:
-            obj_rec = {}
+            obj_rec: dict[str,str] = {}
             l = l.strip()
             ll = l.split("\t")
             for i, v in enumerate(ll):
@@ -581,7 +580,7 @@ def load_taas200():
         for row in reader:
             sequence = int(row["Nr"])
             ngc = row["NGC/IC"]
-            other_catalog = []
+            other_catalog: list[str] = []
             if ngc:
                 if ngc.startswith("IC") or ngc.startswith("B") or ngc.startswith("Col"):
                     other_catalog.append(ngc)
@@ -606,7 +605,7 @@ def load_taas200():
             gc = row["GC Conc or Class"]
             h400 = row["Herschel 400"]
             min_ap = row["Min Aperture"]
-            extra = []
+            extra: list[str] = []
             extra.append(f"{f'Min apert: {min_ap}' if min_ap != '' else ''}")
             extra.append(f"{f'Nr *:{nr_stars}' if nr_stars != '' else ''}")
             extra.append(f"{f'GC:{gc}' if gc != '' else ''}")
@@ -654,7 +653,7 @@ def load_taas200():
     insert_catalog("Ta2", Path(utils.astro_data_dir, "taas200.desc"))
 
 
-def insert_names(db_c, catalog, sequence, name):
+def insert_names(db_c: Cursor, catalog: str, sequence: int, name: str):
     if name == "":
         return
     nameq = f"""
@@ -664,7 +663,7 @@ def insert_names(db_c, catalog, sequence, name):
     db_c.execute(nameq)
 
 
-def insert_catalog(catalog_name, description_path):
+def insert_catalog(catalog_name:str, description_path: Path):
     with open(description_path, "r") as desc:
         description = "".join(desc.readlines())
 
@@ -681,7 +680,7 @@ def insert_catalog(catalog_name, description_path):
     conn.close()
 
 
-def get_catalog_sizes(catalog_name):
+def get_catalog_sizes(catalog_name: str):
     conn, db_c = get_pifinder_database()
     query = f"SELECT catalog, MAX(sequence) FROM objects where catalog = '{catalog_name}' GROUP BY catalog"
     db_c.execute(query)
@@ -768,7 +767,7 @@ def load_ngc_catalog():
 
     # Track M objects to avoid double adding some with
     # multiple NGC sequences
-    m_objects = []
+    m_objects: list[int] = []
     # load em up!
     # ngc2000.dat + messier.dat
     ngc_dat_files = [

@@ -6,6 +6,9 @@ This module contains the base UIModule class
 """
 import os
 import time
+from typing import Any
+from typing_extensions import TypedDict, NotRequired
+from multiprocessing import Queue
 import uuid
 from pathlib import Path
 
@@ -13,7 +16,18 @@ from PIL import Image, ImageDraw, ImageFont, ImageChops, ImageOps
 from PiFinder.ui.fonts import Fonts as fonts
 from PiFinder import utils
 from PiFinder.image_util import DeviceWrapper
+from PiFinder.state import SharedStateObj, UIState
+from PiFinder.config import Config
 
+
+class ConfigOption(TypedDict):
+    type: str
+    value: Any
+    options: list[Any]
+    hotkey: NotRequired[str]
+    callback: NotRequired[str]
+
+ConfigOptions = dict[str, ConfigOption]
 
 class UIModule:
     __title__ = "BASE"
@@ -23,9 +37,9 @@ class UIModule:
     def __init__(
         self,
         device_wrapper: DeviceWrapper,
-        camera_image,
-        shared_state,
-        command_queues,
+        camera_image: Image.Image,
+        shared_state: SharedStateObj,
+        command_queues: dict[str, "Queue[str]"],
         ui_state={},
         config_object=None,
     ):
@@ -50,20 +64,20 @@ class UIModule:
         self.ui_state = ui_state
         self.config_object = config_object
 
-    def exit_config(self, option):
+    def exit_config(self, option: Any) -> bool:
         """
         Handy callback for exiting
         config on option select
         """
         return True
 
-    def update_config(self):
+    def update_config(self) -> bool:
         """
         callback when config is updated
         """
         return True
 
-    def cycle_config(self, config_item, direction=1):
+    def cycle_config(self, config_item: str, direction:int = 1):
         """
         Cycles through a config option
         wrapping if needed
@@ -102,7 +116,7 @@ class UIModule:
         """
         pass
 
-    def update(self, force=False):
+    def update(self, force: bool = False) -> None:
         """
         Called to trigger UI Updates
         to be overloaded by subclases and shoud
@@ -113,7 +127,7 @@ class UIModule:
         """
         return self.screen_update()
 
-    def message(self, message, timeout=2):
+    def message(self, message:str, timeout: float=2):
         """
         Creates a box with text in the center of the screen.
         Waits timeout in seconds
@@ -130,7 +144,7 @@ class UIModule:
         self.display.display(self.screen.convert(self.display.mode))
         self.ui_state["message_timeout"] = timeout + time.time()
 
-    def screen_update(self, title_bar=True):
+    def screen_update(self, title_bar: bool=True):
         """
         called to trigger UI updates
         takes self.screen adds title bar and
@@ -194,7 +208,7 @@ class UIModule:
         self.switch_to = None
         return tmp_return
 
-    def check_hotkey(self, key):
+    def check_hotkey(self, key: str):
         """
                Scans config for a matching
         _       hotkey and if found, cycles
@@ -213,7 +227,7 @@ class UIModule:
 
         return False
 
-    def key_number(self, number):
+    def key_number(self, number: int):
         pass
 
     def key_up(self):

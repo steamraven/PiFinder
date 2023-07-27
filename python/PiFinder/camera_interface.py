@@ -8,13 +8,14 @@ This module is the camera
 * Takes full res images on demand
 
 """
+from multiprocessing import Queue
 import os
 import queue
 import time
 from PIL import Image
 from PiFinder import config
 from PiFinder import utils
-from typing import Tuple
+from PiFinder.state import SharedStateObj
 import logging
 
 
@@ -27,19 +28,19 @@ class CameraInterface:
     def capture(self) -> Image.Image:
         return None
 
-    def capture_file(self, filename) -> None:
+    def capture_file(self, filename: str) -> None:
         pass
 
     def set_camera_config(
         self, exposure_time: float, gain: float
-    ) -> Tuple[float, float, float]:
+    ) -> tuple[float, float]:
         pass
 
     def get_cam_type(self) -> str:
         pass
 
     def get_image_loop(
-        self, shared_state, camera_image, command_queue, console_queue, cfg
+        self, shared_state: SharedStateObj, camera_image: Image.Image, command_queue: "Queue[str]", console_queue: "Queue[str]", cfg: config.Config
     ):
         try:
             debug = False

@@ -7,15 +7,17 @@ to handle catalog image loading
 import requests
 import sqlite3
 import os
+from typing import cast
 from PIL import Image, ImageOps, ImageDraw, ImageFont
 from PiFinder import image_util, cat_images
+from PiFinder.state import CatObject
 
 BASE_IMAGE_PATH = "/Users/rich/Projects/Astronomy/PiFinder/astro_data/catalog_images"
 
 CATALOG_PATH = "/Users/rich/Projects/Astronomy/PiFinder/astro_data/pifinder_objects.db"
 
 
-def get_ngc_aka(catalog_object):
+def get_ngc_aka(catalog_object: cat_images.SimpleCatObject):
     """
     returns the NGC aka for this object
     if available
@@ -51,14 +53,14 @@ def get_ngc_aka(catalog_object):
     return aka_rec
 
 
-def resolve_image_name(catalog_object, source):
+def resolve_image_name(catalog_object: cat_images.SimpleCatObject, source: str):
     """
     returns the image path for this objects
     """
     return f"{BASE_IMAGE_PATH}/{str(catalog_object['sequence'])[-1]}/{catalog_object['catalog']}{catalog_object['sequence']}_{source}.jpg"
 
 
-def check_image(image):
+def check_image(image: Image.Image):
     """
     Checks for defects....
     """
@@ -83,7 +85,7 @@ def check_image(image):
     return True
 
 
-def fetch_object_image(catalog_object, low_cut=10):
+def fetch_object_image(catalog_object: CatObject, low_cut:int=10) -> bool:
     """
     Check if image exists
     or fetch it.
@@ -128,7 +130,7 @@ def fetch_object_image(catalog_object, low_cut=10):
     return True
 
 
-def fetch_catalog(catalog):
+def fetch_catalog(catalog: str):
     conn = sqlite3.connect(CATALOG_PATH)
     conn.row_factory = sqlite3.Row
     db_c = conn.cursor()
@@ -155,7 +157,7 @@ def create_catalog_image_dirs():
             os.makedirs(_image_dir)
 
 
-def get_catalog_images(catalog):
+def get_catalog_images(catalog: str):
     create_catalog_image_dirs()
     cat = fetch_catalog(catalog)
     for catalog_object in cat:

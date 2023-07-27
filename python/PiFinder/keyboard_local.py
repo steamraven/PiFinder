@@ -1,10 +1,13 @@
 import time
+from typing import NoReturn
+from multiprocessing import Queue
 from PiFinder.keyboard_interface import KeyboardInterface
+from PiFinder.state import SharedStateObj
 import logging
 
 
 class KeyboardLocal(KeyboardInterface):
-    def __init__(self, q):
+    def __init__(self, q: "Queue[int]"):
         try:
             from PyHotKey import Key, keyboard_manager as manager
         except:
@@ -52,11 +55,11 @@ class KeyboardLocal(KeyboardInterface):
         # manager.logger = True
         logging.debug("KeyboardLocal.__init__")
 
-    def callback(self, key):
+    def callback(self, key: int):
         self.q.put(key)
 
 
-def run_keyboard(q, shared_state):
+def run_keyboard(q: "Queue[int]", shared_state: SharedStateObj) -> NoReturn:
     KeyboardLocal(q)
 
     while True:

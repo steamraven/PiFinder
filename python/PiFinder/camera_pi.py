@@ -15,13 +15,14 @@ from PIL import Image
 from PiFinder import config
 from PiFinder import utils
 from PiFinder.camera_interface import CameraInterface
-from typing import Tuple
+from PiFinder.state import SharedStateObj
+from multiprocessing import Queue
 
 
 class CameraPI(CameraInterface):
     """The camera class for PI cameras.  Implements the CameraInterface interface."""
 
-    def __init__(self, exposure_time, gain) -> None:
+    def __init__(self, exposure_time: int, gain: float) -> None:
         from picamera2 import Picamera2
 
         self.camera = Picamera2()
@@ -46,12 +47,12 @@ class CameraPI(CameraInterface):
     def capture(self) -> Image.Image:
         return self.camera.capture_image()
 
-    def capture_file(self, filename) -> None:
+    def capture_file(self, filename: str) -> None:
         return self.camera.capture_file(filename)
 
     def set_camera_config(
         self, exposure_time: float, gain: float
-    ) -> Tuple[float, float]:
+    ) -> tuple[float, float]:
         self.camera.stop()
         self.camera.set_controls({"AnalogueGain": gain})
         self.camera.set_controls({"ExposureTime": exposure_time})
@@ -62,7 +63,7 @@ class CameraPI(CameraInterface):
         return self.camType
 
 
-def get_images(shared_state, camera_image, command_queue, console_queue):
+def get_images(shared_state: SharedStateObj, camera_image: Image.Image, command_queue: "Queue[str]", console_queue: "Queue[str]"):
     """
     Instantiates the camera hardware
     then calls the universal image loop

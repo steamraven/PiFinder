@@ -6,16 +6,18 @@ This module contains all the UI Module classes
 """
 import os
 import datetime
+from typing import Any
 
 from PIL import Image
 from PiFinder.ui.base import UIModule
 from PiFinder.image_util import convert_image_to_mode
+from PiFinder.state import SharedStateObj
 
 
 class UIConsole(UIModule):
     __title__ = "CONSOLE"
 
-    def __init__(self, *args):
+    def __init__(self, *args: Any): #TODO: expand arg list
         super().__init__(*args)
         self.dirty = True
         self.welcome = True
@@ -33,10 +35,10 @@ class UIConsole(UIModule):
         self.scroll_offset = 0
         self.debug_mode = False
 
-    def set_shared_state(self, shared_state):
+    def set_shared_state(self, shared_state: SharedStateObj):
         self.shared_state = shared_state
 
-    def key_number(self, number):
+    def key_number(self, number: int):
         if number == 0:
             self.command_queues["camera"].put("debug")
             if self.debug_mode:
@@ -62,7 +64,7 @@ class UIConsole(UIModule):
             self.scroll_offset = 0
         self.dirty = True
 
-    def write(self, line):
+    def write(self, line: str):
         """
         Writes a new line to the console.
         """
@@ -77,7 +79,7 @@ class UIConsole(UIModule):
         self.dirty = True
         self.update()
 
-    def update(self, force=False):
+    def update(self, force: bool=False):
         if self.dirty:
             if self.welcome:
                 # Clear / write just top line

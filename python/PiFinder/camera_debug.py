@@ -15,8 +15,9 @@ from PIL import Image
 from PiFinder import config
 from PiFinder import utils
 from PiFinder.camera_interface import CameraInterface
+from PiFinder.state import SharedStateObj
 import PiFinder.utils
-from typing import Tuple
+from multiprocessing import Queue
 
 
 class CameraDebug(CameraInterface):
@@ -38,20 +39,20 @@ class CameraDebug(CameraInterface):
     def capture(self) -> Image.Image:
         return Image.open(self.path / "pifinder_debug.png")
 
-    def capture_file(self, filename) -> None:
+    def capture_file(self, filename: str) -> None:
         print("capture_file not implemented")
         pass
 
     def set_camera_config(
         self, exposure_time: float, gain: float
-    ) -> Tuple[float, float]:
+    ) -> tuple[float, float]:
         return exposure_time, gain
 
     def get_cam_type(self) -> str:
         return self.camType
 
 
-def get_images(shared_state, camera_image, command_queue, console_queue):
+def get_images(shared_state: SharedStateObj, camera_image: Image.Image, command_queue: "Queue[str]", console_queue: "Queue[str]"):
     """
     Instantiates the camera hardware
     then calls the universal image loop

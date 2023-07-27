@@ -4,6 +4,7 @@
 from pathlib import Path
 from PIL import ImageFont
 
+Font = ImageFont.FreeTypeFont
 
 class Fonts:
     font_path = str(Path(Path.cwd(), "../fonts"))

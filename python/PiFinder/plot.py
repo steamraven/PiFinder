@@ -7,6 +7,8 @@ and constelleations
 import os
 import io
 import datetime
+from typing import cast
+from collections.abc import Sequence
 import numpy as np
 import pandas
 import time
@@ -18,7 +20,9 @@ from skyfield.api import Star, load, utc, Angle
 from skyfield.constants import GM_SUN_Pitjeva_2005_km3_s2 as GM_SUN
 from skyfield.data import hipparcos, mpc, stellarium
 from skyfield.projections import build_stereographic_projection
+from skyfield.positionlib import Barycentric
 from PiFinder.integrator import sf_utils
+from PiFinder.image_util import Colors
 
 
 class Starfield:
@@ -27,7 +31,7 @@ class Starfield:
     specified RA/DEC + roll
     """
 
-    def __init__(self, colors, mag_limit=7, fov=10.2):
+    def __init__(self, colors: Colors, mag_limit:int=7, fov:float=10.2):
         self.colors = colors
         utctime = datetime.datetime(2023, 1, 1, 2, 0, 0).replace(tzinfo=utc)
         ts = sf_utils.ts
@@ -63,7 +67,7 @@ class Starfield:
             Image.new("RGBA", (256, 256), colors.get(64)),
         )
         # load markers...
-        self.markers = {}
+        self.markers: dict[str, Image.Image] = {}
         for filename in os.listdir(marker_path):
             if filename.startswith("mrk_"):
                 marker_code = filename[4:-4]
@@ -75,13 +79,13 @@ class Starfield:
                     _image, Image.new("RGBA", (256, 256), colors.get(256))
                 )
 
-    def set_mag_limit(self, mag_limit):
+    def set_mag_limit(self, mag_limit: float):
         self.mag_limit = mag_limit
 
-    def set_fov(self, fov):
+    def set_fov(self, fov: float):
         self.fov = fov
 
-    def plot_markers(self, ra, dec, roll, marker_list):
+    def plot_markers(self, ra: float, dec: float, roll: float, marker_list: list[tuple[float,float,str]]):
         """
         Returns an image to add to another image
         Marker list should be a list of
@@ -153,7 +157,7 @@ class Starfield:
 
         return ret_image.rotate(roll).crop([64, 64, 192, 192])
 
-    def plot_starfield(self, ra, dec, roll, constellation_brightness=32):
+    def plot_starfield(self, ra: float, dec: float, roll: float, constellation_brightness: int=32):
         """
         Returns an image of the starfield at the
         provided RA/DEC/ROLL with or without
@@ -173,7 +177,7 @@ class Starfield:
         pil_image = self.render_starfield_pil(stars, constellation_brightness)
         return pil_image.rotate(roll).crop([64, 64, 192, 192])
 
-    def render_starfield_pil(self, stars, constellation_brightness):
+    def render_starfield_pil(self, stars: pandas.DataFrame, constellation_brightness: int):
         target_size = 128
         angle = np.pi - (self.fov) / 360.0 * np.pi
         limit = np.sin(angle) / (1.0 - np.cos(angle))

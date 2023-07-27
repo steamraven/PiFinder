@@ -5,10 +5,13 @@ This module is for GPS related functions
 
 """
 import time
+from typing import NoReturn, Union
+from multiprocessing import Queue
 from PiFinder import gps
+from PiFinder.state import Location
 
 
-def gps_monitor(gps_queue, console_queue):
+def gps_monitor(gps_queue:"Queue[tuple[str, Union[Location, str]]]", console_queue: "Queue[str]") -> NoReturn:
     session = gps.gps(mode=gps.WATCH_ENABLE)
     gps_locked = False
     while True:
@@ -23,7 +26,7 @@ def gps_monitor(gps_queue, console_queue):
                         if gps_locked == False:
                             console_queue.put("GPS: Locked")
                             gps_locked = True
-                        msg = (
+                        msg: tuple[str, Union[Location,str]] = (
                             "fix",
                             {
                                 "lat": session.fix.latitude,

@@ -9,7 +9,7 @@ class FastAltAz:
     http://www.stargazing.net/kepler/altaz.html
     """
 
-    def __init__(self, lat, lon, dt):
+    def __init__(self, lat: float, lon: float, dt: datetime.datetime):
         self.lat = lat
         self.lon = lon
         self.dt = dt
@@ -26,7 +26,7 @@ class FastAltAz:
 
         self.local_siderial_time = lst % 360
 
-    def radec_to_altaz(self, ra, dec, alt_only=False):
+    def radec_to_altaz(self, ra: float, dec:float, alt_only:bool=False):
         hour_angle = (self.local_siderial_time - ra) % 360
 
         _alt = math.sin(dec * math.pi / 180) * math.sin(

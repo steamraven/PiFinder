@@ -16,7 +16,7 @@ from PiFinder.image_util import (
     subtract_background,
 )
 from PiFinder.ui.base import UIModule
-
+from typing import Any
 
 class UIPreview(UIModule):
     __title__ = "PREVIEW"
@@ -65,7 +65,7 @@ class UIPreview(UIModule):
         },
     }
 
-    def __init__(self, *args):
+    def __init__(self, *args: Any): #TODO: expand arg list
         super().__init__(*args)
 
         exposure_time = self.config_object.get_option("camera_exp")
@@ -79,18 +79,18 @@ class UIPreview(UIModule):
         self.capture_prefix = f"{self.__uuid__}_diag"
         self.capture_count = 0
 
-    def set_exp(self, option):
+    def set_exp(self, option:float):
         new_exposure = int(option * 1000000)
         self.command_queues["camera"].put(f"set_exp:{new_exposure}")
         self.message("Exposure Set")
         return False
 
-    def set_gain(self, option):
+    def set_gain(self, option: float):
         self.command_queues["camera"].put(f"set_gain:{option}")
         self.message("Gain Set")
         return False
 
-    def save_exp(self, option):
+    def save_exp(self, option: str):
         if option == "Save":
             self.command_queues["camera"].put("exp_save")
             self.message("Exposure Saved")
@@ -126,7 +126,7 @@ class UIPreview(UIModule):
             self.draw.arc(bbox, 200, 250, fill=self.colors.get(brightness))
             self.draw.arc(bbox, 290, 340, fill=self.colors.get(brightness))
 
-    def update(self, force=False):
+    def update(self, force:bool=False):
         if force:
             self.last_update = 0
         # display an image
@@ -168,7 +168,7 @@ class UIPreview(UIModule):
     def key_enter(self):
         self.command_queues["camera"].put("exp_save")
 
-    def key_number(self, number):
+    def key_number(self, number: int):
         if number == 0:
             self.capture_count += 1
             capture_imagepath = self.capture_prefix + f"_{self.capture_count :0>3}.png"

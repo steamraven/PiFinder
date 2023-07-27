@@ -5,6 +5,7 @@ This module contains all the UI Module classes
 
 """
 import time
+from typing import Any
 from PIL import ImageChops, Image
 
 from PiFinder.obj_types import OBJ_TYPE_MARKERS
@@ -35,13 +36,13 @@ class UIChart(UIModule):
         },
     }
 
-    def __init__(self, *args):
+    def __init__(self, *args: Any):  #TODO: expand arg list
         super().__init__(*args)
         self.last_update = time.time()
         self.starfield = plot.Starfield(self.colors)
         self.solution = None
-        self.fov_list = [5, 10.2, 15, 20, 25, 30, 40, 60]
-        self.mag_list = [7.5, 7, 6.5, 6, 5.5, 5.5, 5, 5, 5, 5]
+        self.fov_list: list[float] = [5, 10.2, 15, 20, 25, 30, 40, 60]
+        self.mag_list: list[float] = [7.5, 7, 6.5, 6, 5.5, 5.5, 5, 5, 5, 5]
         self.fov_index = 1
         super().__init__(*args)
 
@@ -54,7 +55,7 @@ class UIChart(UIModule):
         if not self.solution or self._config_options["Obs List"]["value"] == "Off":
             return
 
-        marker_list = []
+        marker_list: list[tuple[float,float,str]] = []
         for obs_target in self.ui_state["observing_list"]:
             marker = OBJ_TYPE_MARKERS.get(obs_target["obj_type"])
             if marker:
@@ -93,7 +94,7 @@ class UIChart(UIModule):
         if not target or not self.solution:
             return
 
-        marker_list = [
+        marker_list: list[tuple[float, float, str]] = [
             (plot.Angle(degrees=target["ra"])._hours, target["dec"], "target")
         ]
 
@@ -134,7 +135,7 @@ class UIChart(UIModule):
             self.draw.arc(bbox, 200, 250, fill=self.colors.get(brightness))
             self.draw.arc(bbox, 290, 340, fill=self.colors.get(brightness))
 
-    def update(self, force=False):
+    def update(self, force: bool=False):
         if force:
             self.last_update = 0
 
@@ -177,7 +178,7 @@ class UIChart(UIModule):
         self.draw_reticle()
         return self.screen_update()
 
-    def change_fov(self, direction):
+    def change_fov(self, direction: int):
         self.fov_index += direction
         if self.fov_index < 0:
             self.fov_index = 0

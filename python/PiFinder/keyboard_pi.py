@@ -7,12 +7,15 @@ and adds keys to the provided queue
 """
 import sh
 from time import sleep
+from typing import NoReturn
+from multiprocessing import Queue
 from PiFinder.keyboard_interface import KeyboardInterface
+from PiFinder.state import SharedStateObj
 import RPi.GPIO as GPIO
 
 
 class KeyboardPi(KeyboardInterface):
-    def __init__(self, q):
+    def __init__(self, q: "Queue[int]"):
         self.q = q
 
         self.cols = [16, 23, 26, 27]
@@ -41,7 +44,7 @@ class KeyboardPi(KeyboardInterface):
         ]
         # fmt: on
 
-    def run_keyboard(self):
+    def run_keyboard(self) -> NoReturn:
         """
         scans keyboard matrix, puts release events in queue
         """
@@ -49,7 +52,7 @@ class KeyboardPi(KeyboardInterface):
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(self.rows, GPIO.IN)
         GPIO.setup(self.cols, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-        pressed = set()
+        pressed: set[int] = set()
         alt_sent = False
         hold_counter = 0
         hold_sent = False
@@ -90,6 +93,6 @@ class KeyboardPi(KeyboardInterface):
                 GPIO.setup(self.rows[i], GPIO.IN)
 
 
-def run_keyboard(q, shared_state):
+def run_keyboard(q: "Queue[int]", shared_state: SharedStateObj) -> NoReturn:
     keyboard = KeyboardPi(q)
     keyboard.run_keyboard()

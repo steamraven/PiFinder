@@ -6,14 +6,20 @@ This module is for IMU related functions
 """
 from pprint import pprint
 import time
+from typing import Any, NoReturn, Optional, Union, cast
+from collections.abc import MutableSequence, Sequence
+from multiprocessing import Queue
 import board
 import adafruit_bno055
 
 from scipy.spatial.transform import Rotation
 
+from PiFinder.state import IMUData, SharedStateObj, IMUPos
+
 QUEUE_LEN = 10
 MOVE_CHECK_LEN = 2
 
+Quaternion = tuple[float,float,float,float]
 
 class Imu:
     def __init__(self):
@@ -29,13 +35,13 @@ class Imu:
             adafruit_bno055.AXIS_REMAP_POSITIVE,
             adafruit_bno055.AXIS_REMAP_POSITIVE,
         )
-        self.quat_history = [(0, 0, 0, 0)] * QUEUE_LEN
+        self.quat_history: list[Quaternion] = [(0, 0, 0, 0)] * QUEUE_LEN
         self.__moving = False
         self.__moving_threshold = (0.005, 0.001)
         self.calibration = 0
-        self.avg_quat = (0, 0, 0, 0)
+        self.avg_quat: Quaternion = (0, 0, 0, 0)
 
-    def quat_to_euler(self, quat):
+    def quat_to_euler(self, quat: Quaternion) -> Sequence[float]:
         if quat[0] + quat[1] + quat[2] + quat[3] == 0:
             return 0, 0, 0
         rot = Rotation.from_quat(quat)
@@ -86,14 +92,14 @@ class Imu:
             if self.__reading_diff > self.__moving_threshold[0]:
                 self.__moving = True
 
-    def get_euler(self):
+    def get_euler(self) -> IMUPos:
         return list(self.quat_to_euler(self.avg_quat))
 
 
-def imu_monitor(shared_state, console_queue):
+def imu_monitor(shared_state: Optional[SharedStateObj], console_queue: "Queue[str]" ) -> NoReturn:
     imu = Imu()
     imu_calibrated = False
-    imu_data = {
+    imu_data:dict[str,Any] = {
         "moving": False,
         "move_start": None,
         "move_end": None,

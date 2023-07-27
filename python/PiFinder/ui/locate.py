@@ -5,6 +5,7 @@ This module contains the Locate module
 
 """
 import time
+from typing import Any, Union
 from PIL import ImageFont
 import logging
 
@@ -36,7 +37,7 @@ class UILocate(UIModule):
         },
     }
 
-    def __init__(self, *args):
+    def __init__(self, *args: Any): #TODO: expand arg list
         super().__init__(*args)
         self.target_index = None
         self.object_text = ["No Object Found"]
@@ -49,7 +50,7 @@ class UILocate(UIModule):
         self.obs_list_write_index = 0
         self.last_update_time = time.time()
 
-    def save_list(self, option):
+    def save_list(self, option: str):
         self._config_options["Load"]["value"] = ""
         if option == "CANCEL":
             return False
@@ -67,7 +68,7 @@ class UILocate(UIModule):
         self.message(f"Saved list - {self.ss_count:02d}")
         return True
 
-    def load_list(self, option):
+    def load_list(self, option: str):
         self._config_options["Load"]["value"] = ""
         if option == "CANCEL":
             return False
@@ -150,7 +151,7 @@ class UILocate(UIModule):
             self.object_text = ["No Object Found"]
             return
 
-        self.object_text = []
+        self.object_text: list[str] = []
         try:
             # Type / Constellation
             object_type = OBJ_TYPES.get(
@@ -164,7 +165,7 @@ class UILocate(UIModule):
                 f"Error generating object text: {e}, {self.ui_state['target']}"
             )
 
-    def aim_degrees(self):
+    def aim_degrees(self) -> Union[tuple[float, float], tuple[None,None]]:
         """
         Returns degrees in
         az/alt from current position
@@ -205,7 +206,7 @@ class UILocate(UIModule):
         self.update_object_text()
         self.update()
 
-    def update(self, force=False):
+    def update(self, force: bool =False):
         time.sleep(1 / 30)
         # Clear Screen
         self.draw.rectangle([0, 0, 128, 128], fill=self.colors.get(0))
@@ -299,7 +300,7 @@ class UILocate(UIModule):
 
         return self.screen_update()
 
-    def scroll_target_history(self, direction):
+    def scroll_target_history(self, direction: int):
         if self.target_index is not None:
             self.target_index += direction
             if self.target_index >= len(self.ui_state["active_list"]):

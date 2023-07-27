@@ -6,6 +6,7 @@ This module contains all the UI Module classes
 """
 import datetime
 import time
+from typing import Any
 from PIL import ImageFont
 
 from PiFinder import solver
@@ -15,6 +16,7 @@ from PiFinder.ui.fonts import Fonts as fonts
 from PiFinder import obslog
 from skyfield.api import Angle
 from skyfield.positionlib import ICRF
+from PiFinder.state import CatObject
 
 
 class UILog(UIModule):
@@ -58,7 +60,7 @@ class UILog(UIModule):
         },
     }
 
-    def __init__(self, *args):
+    def __init__(self, *args: Any): #TODO: expand arg list
         super().__init__(*args)
         self.target = None
         self.__catalog_names = self.config_object.get_option("catalogs")
@@ -76,7 +78,7 @@ class UILog(UIModule):
         self._config_options["Obsability"]["value"] = "NA"
         self._config_options["Appeal"]["value"] = "NA"
 
-    def record_object(self, _object):
+    def record_object(self, _object: CatObject):
         """
         Creates a session if needed
         then records the current target
@@ -145,7 +147,7 @@ class UILog(UIModule):
             self.reset_config()
         self.update()
 
-    def update(self, force=False):
+    def update(self, force: bool=False):
         # Clear Screen
         self.draw.rectangle([0, 0, 128, 128], fill=self.colors.get(0))
 

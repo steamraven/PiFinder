@@ -12,8 +12,12 @@ import queue
 import pprint
 import time
 import copy
+from multiprocessing import Queue
+from typing import Optional, cast, Union
+from typing_extensions import TypedDict
 import uuid
 import json
+import datetime
 import logging
 
 from PIL import ImageOps, Image
@@ -25,14 +29,18 @@ from skyfield.api import (
     position_of_radec,
     load_constellation_map,
 )
+from skyfield.jpllib import SpiceKernel
+from skyfield.positionlib import Barycentric, Geocentric, Geometric, ICRF
 
 from PiFinder.image_util import subtract_background
 from PiFinder import config
 import PiFinder.utils as utils
+from PiFinder.state import SharedStateObj, PartialSolution, Solution
 
 IMU_ALT = 2
 IMU_AZ = 0
 
+Position = Union[Barycentric, Geocentric, Geometric, ICRF]
 
 class Skyfield_utils:
     """
@@ -50,7 +58,7 @@ class Skyfield_utils:
         self.constellation_map = load_constellation_map()
         self.ts = load.timescale()
 
-    def set_location(self, lat, lon, altitude):
+    def set_location(self, lat:float, lon:float, altitude:float):
         """
         set observing location
         """
@@ -60,7 +68,7 @@ class Skyfield_utils:
             altitude,
         )
 
-    def altaz_to_radec(self, alt, az, dt):
+    def altaz_to_radec(self, alt:float, az:float, dt: datetime.datetime):
         """
         returns the ra/dec of a specfic
         apparent alt/az at the given time
@@ -72,7 +80,7 @@ class Skyfield_utils:
         ra, dec, distance = a.radec(epoch=t)
         return ra._degrees, dec._degrees
 
-    def radec_to_altaz(self, ra, dec, dt, atmos=True):
+    def radec_to_altaz(self, ra:float, dec:float, dt: datetime.datetime, atmos:bool=True):
         """
         returns the apparent ALT/AZ of a specfic
         RA/DEC at the given time
@@ -92,7 +100,7 @@ class Skyfield_utils:
             alt, az, distance = apparent.altaz()
         return alt.degrees, az.degrees
 
-    def radec_to_constellation(self, ra, dec):
+    def radec_to_constellation(self, ra:float, dec:float):
         """
         Take a ra/dec and return the constellation
         """
@@ -103,10 +111,20 @@ class Skyfield_utils:
 # Create a single instance of the skyfield utils
 sf_utils = Skyfield_utils()
 
+class Solving(TypedDict):
+    RA: Optional[float]
+    Dec: Optional[float]
+    Alt: Optional[float]
+    Az: Optional[float]
+    solve_source: Optional[str]
+    imu_pos: Optional[list[int]]
+    constellation: Optional[str]
+    solve_time: float
+    cam_solve_time: float
 
-def integrator(shared_state, solver_queue, console_queue):
+def integrator(shared_state: SharedStateObj, solver_queue: "Queue[PartialSolution]", console_queue: "Queue[str]"):
     try:
-        solved = {
+        solved: Solving = {
             "RA": None,
             "Dec": None,
             "imu_pos": None,
@@ -125,7 +143,7 @@ def integrator(shared_state, solver_queue, console_queue):
 
         # This holds the last image solve position info
         # so we can delta for IMU updates
-        last_image_solve = None
+        last_image_solve: Optional[Solving] = None
         last_solved = None
         last_solve_time = time.time()
         while True:
@@ -135,7 +153,7 @@ def integrator(shared_state, solver_queue, console_queue):
                 time.sleep(1 / 30)
 
             # Check for new camera solve in queue
-            next_image_solve = None
+            next_image_solve: Optional[PartialSolution] = None
             try:
                 next_image_solve = solver_queue.get(block=False)
             except queue.Empty:

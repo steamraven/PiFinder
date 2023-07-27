@@ -7,8 +7,11 @@ images from AWS
 import requests, os
 import sqlite3
 from tqdm import tqdm
+from collections.abc import Iterable
 
 from PiFinder import cat_images
+from PiFinder.cat_images import SimpleCatObject
+from PiFinder.state import CatObject
 
 
 def get_catalog_objects():
@@ -24,7 +27,7 @@ def get_catalog_objects():
     return cat_objects
 
 
-def check_catalog_objects(cat_objects):
+def check_catalog_objects(cat_objects: Iterable[CatObject]):
     """
     Checks through catalog objects
     to deterine which need to be
@@ -33,9 +36,9 @@ def check_catalog_objects(cat_objects):
     Returns the list of just objects
     to fetch
     """
-    return_list = []
+    return_list: list[SimpleCatObject] = []
     for catalog_object in tqdm(cat_objects):
-        cat_dict = {
+        cat_dict: SimpleCatObject = {
             "catalog": catalog_object["catalog"],
             "sequence": catalog_object["sequence"],
         }
@@ -71,7 +74,7 @@ def check_catalog_objects(cat_objects):
     return return_list
 
 
-def fetch_object_image(catalog_object):
+def fetch_object_image(catalog_object: SimpleCatObject):
     """
     Check if image exists
     or fetch it.

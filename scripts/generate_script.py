@@ -2,15 +2,15 @@ import argparse
 import random
 
 
-def generate_commands(filename, num_lines, command_weights):
+def generate_commands(filename: int, num_lines: int, command_weights: dict[str, int]):
     all_commands = list(command_weights.keys())
     total_weight = sum(command_weights.values())
     command_percentages = {
         command: weight / total_weight for command, weight in command_weights.items()
     }
 
-    cumulative_percentages = []
-    cumulative_sum = 0
+    cumulative_percentages: list[float] = []
+    cumulative_sum: float = 0
     for command in all_commands:
         cumulative_sum += command_percentages[command]
         cumulative_percentages.append(cumulative_sum)

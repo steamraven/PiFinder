@@ -11,7 +11,10 @@ tools
 import os
 import sqlite3
 from textwrap import dedent
+from typing import cast
+from typing_extensions import TypedDict
 from PiFinder import utils
+from PiFinder.state import CatObject
 
 OBSLIST_DIR = f"{utils.data_dir}/obslists/"
 DB_PATH = f"{utils.pifinder_dir}/astro_data/pifinder_objects.db"
@@ -24,7 +27,7 @@ SKYSAFARI_CATALOG_NAMES = {
 SKYSAFARI_CATALOG_NAMES_INV = {v: k for k, v in SKYSAFARI_CATALOG_NAMES.items()}
 
 
-def write_list(catalog, name):
+def write_list(catalog: list[CatObject], name: str):
     """
     Writes the catalog (list of object records)
     to a file.
@@ -48,7 +51,7 @@ def write_list(catalog, name):
             index_num += 1
 
 
-def resolve_object(catalog_numbers, connection):
+def resolve_object(catalog_numbers: list[str], connection:sqlite3.Connection):
     """
     Takes a list of SkySafari catalog
     numbers and tries to find an object
@@ -77,8 +80,13 @@ def resolve_object(catalog_numbers, connection):
     print("Failed")
     return None
 
+class Result(TypedDict):
+    result: str
+    objects_parsed: int
+    message: str
+    catalog: list[CatObject]
 
-def read_list(name):
+def read_list(name: str) -> Result:
     """
     Reads a skylist style observing
     list.  Matches against catalogs
@@ -88,9 +96,10 @@ def read_list(name):
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
 
-    list_catalog = []
+    list_catalog: list[CatObject] = []
     objects_parsed = 0
     in_object = False
+    catalog_numbers: list[str]
     with open(OBSLIST_DIR + name + ".skylist", "r") as skylist:
         for l in skylist:
             l = l.strip()
@@ -164,7 +173,7 @@ def get_lists():
     """
     Returns a list of list names on disk
     """
-    obs_files = []
+    obs_files: list[str] = []
     for filename in os.listdir(OBSLIST_DIR):
         if not filename.startswith(".") and filename.endswith(".skylist"):
             obs_files.append(filename[:-8])

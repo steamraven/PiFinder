@@ -3,11 +3,14 @@ import sqlite3
 import time
 import numpy as np
 import pandas as pd
-from typing import List, Dict, Optional
+from typing import Any, Optional, Union, cast
 from PiFinder import calc_utils
 import PiFinder.utils as utils
 from PiFinder import obslog
 from sklearn.neighbors import BallTree
+
+from PiFinder.state import CatObject, SharedStateObj
+from PiFinder.ui.base import ConfigOptions
 
 # collection of all catalog-related classes
 
@@ -17,12 +20,12 @@ class Catalog:
 
     last_filtered: float = 0
 
-    def __init__(self, catalog_name):
+    def __init__(self, catalog_name: str):
         self.name = catalog_name
-        self.objects: Dict[int, Dict] = {}
-        self.objects_keys_sorted: List[int] = []
-        self.filtered_objects: Dict[int, Dict] = {}
-        self.filtered_objects_keys_sorted: List[int] = []
+        self.objects: dict[int, CatObject] = {}
+        self.objects_keys_sorted: list[int] = []
+        self.filtered_objects: dict[int, CatObject] = {}
+        self.filtered_objects_keys_sorted: list[int] = []
         self.max_sequence = 0
         self.desc = "No description"
         self._load_catalog()
@@ -69,16 +72,16 @@ class Catalog:
         logging.info(f"loaded {len(self.objects)} objects for {self.name}")
         self.conn.close()
 
-    def _get_sorted_keys(self, dictionary):
+    def _get_sorted_keys(self, dictionary: dict[int, CatObject]):
         return sorted(dictionary.keys())
 
     def filter(
         self,
-        shared_state,
-        magnitude_filter,
-        type_filter,
-        altitude_filter,
-        observed_filter,
+        shared_state: SharedStateObj,
+        magnitude_filter: Union[str, float],
+        type_filter:list[str],
+        altitude_filter: Union[str, float],
+        observed_filter: str,
     ):
         """
         Does filtering based on params
@@ -89,7 +92,7 @@ class Catalog:
         """
         self.last_filtered = time.time()
 
-        self.filtered_objects = {}
+        self.filtered_objects: dict[int, CatObject] = {}
 
         fast_aa = None
         if altitude_filter != "None":
@@ -157,26 +160,26 @@ class CatalogDesignator:
     """Holds the string that represents the catalog input/search field.
     Usually looks like 'NGC----' or 'M-13'"""
 
-    def __init__(self, catalog_name, max_sequence):
+    def __init__(self, catalog_name: str, max_sequence: int):
         self.catalog_name = catalog_name
-        self.object_number = 0
+        self.object_number: int = 0
         self.width = len(str(max_sequence))
         self.field = self.get_designator()
 
-    def set_target(self, catalog_index, number=0):
+    def set_target(self, catalog_index: int, number:int=0):
         assert len(str(number)) <= self.get_catalog_width()
         self.catalog_index = catalog_index
         self.object_number = number
         self.field = self.get_designator()
 
-    def append_number(self, number):
+    def append_number(self, number: int):
         number_str = str(self.object_number) + str(number)
         if len(number_str) > self.get_catalog_width():
             number_str = number_str[1:]
         self.object_number = int(number_str)
         self.field = self.get_designator()
 
-    def set_number(self, number):
+    def set_number(self, number: int):
         self.object_number = number
         self.field = self.get_designator()
 
@@ -215,16 +218,16 @@ class CatalogDesignator:
 
 
 class CatalogTracker:
-    object_tracker: Dict[str, Optional[int]]
-    designator_tracker: Dict[str, Optional[CatalogDesignator]]
+    object_tracker: dict[str, Optional[int]]
+    designator_tracker: dict[str, CatalogDesignator]
     current: Catalog
     current_catalog_name: str
 
-    def __init__(self, catalog_names: List[str], shared_state, config_options):
+    def __init__(self, catalog_names: list[str], shared_state:SharedStateObj, config_options: ConfigOptions):
         self.catalog_names = catalog_names
         self.shared_state = shared_state
         self.config_options = config_options
-        self.catalogs: Dict[str, Catalog] = self._load_catalogs(catalog_names)
+        self.catalogs: dict[str, Catalog] = self._load_catalogs(catalog_names)
         self.designator_tracker = {
             c: CatalogDesignator(c, self.catalogs[c].max_sequence)
             for c in self.catalog_names
@@ -232,12 +235,12 @@ class CatalogTracker:
         self.set_current_catalog(catalog_names[0])
         self.object_tracker = {c: None for c in self.catalog_names}
 
-    def set_current_catalog(self, catalog_name):
+    def set_current_catalog(self, catalog_name: str):
         assert catalog_name in self.catalogs, f"{catalog_name} not in {self.catalogs}"
         self.current_catalog = self.catalogs[catalog_name]
         self.current_catalog_name = catalog_name
 
-    def next_catalog(self, direction=1):
+    def next_catalog(self, direction:int=1):
         current_index = self.catalog_names.index(self.current_catalog_name)
         next_index = (current_index + direction) % len(self.catalog_names)
         self.set_current_catalog(self.catalog_names[next_index])
@@ -245,7 +248,7 @@ class CatalogTracker:
     def previous_catalog(self):
         self.next_catalog(-1)
 
-    def next_object(self, direction=1, filtered=True):
+    def next_object(self, direction:int=1, filtered:bool=True):
         """
         direction: 1 for next, -1 for previous
 
@@ -278,9 +281,9 @@ class CatalogTracker:
     def previous_object(self):
         return self.next_object(-1)
 
-    def get_objects(self, catalogs=None, filtered=False) -> List[Dict]:
+    def get_objects(self, catalogs:Optional[list[str]] = None, filtered:bool=False) -> list[CatObject]:
         catalog_list = self._select_catalogs(catalogs)
-        object_values = []
+        object_values: list[CatObject] = []
         for catalog in catalog_list:
             if filtered:
                 object_values.extend(catalog.filtered_objects.values())
@@ -301,7 +304,7 @@ class CatalogTracker:
             return None
         return self.current_catalog.objects[object_key]
 
-    def set_current_object(self, object_number, catalog_name=None):
+    def set_current_object(self, object_number:Optional[int], catalog_name:Optional[str]=None):
         if catalog_name is not None:
             self.set_current_catalog(catalog_name)
         else:
@@ -311,12 +314,12 @@ class CatalogTracker:
             object_number if object_number else 0
         )
 
-    def get_designator(self, catalog_name=None) -> CatalogDesignator:
+    def get_designator(self, catalog_name:Optional[str]=None) -> CatalogDesignator:
         catalog_name = self._get_catalog_name(catalog_name)
         return self.designator_tracker[catalog_name]
 
-    def _load_catalogs(self, catalogs: List[str]) -> Dict[str, Catalog]:
-        result = {}
+    def _load_catalogs(self, catalogs: list[str]) -> dict[str, Catalog]:
+        result:dict[str, Catalog] = {}
         for catalog in catalogs:
             result[catalog] = Catalog(catalog)
         return result
@@ -325,20 +328,20 @@ class CatalogTracker:
         catalog: str = catalog or self.current_catalog_name
         return catalog
 
-    def _select_catalog(self, catalog: Optional[str]) -> Catalog:
+    def _select_catalog(self, catalog: Optional[str]) -> Optional[Catalog]:
         catalog = self._get_catalog_name(catalog)
         return self.catalogs.get(catalog)
 
-    def _select_catalogs(self, catalogs: Optional[List[str]]) -> List[Catalog]:
-        catalog_list: List[Catalog] = []
+    def _select_catalogs(self, catalogs: Optional[list[str]]) -> list[Catalog]:
+        catalog_list: list[Catalog] = []
         if catalogs is None:
             catalog_list = [self.current_catalog]
         else:
             catalog_list = [self.catalogs.get(key) for key in catalogs]
         return catalog_list
 
-    def filter(self, catalogs=None):
-        catalog_list: List[Catalog] = self._select_catalogs(catalogs=catalogs)
+    def filter(self, catalogs:Optional[list[str]]=None):
+        catalog_list: list[Catalog] = self._select_catalogs(catalogs=catalogs)
         magnitude_filter = self.config_options["Magnitude"]["value"]
         type_filter = self.config_options["Obj Types"]["value"]
         altitude_filter = self.config_options["Alt Limit"]["value"]
@@ -362,12 +365,12 @@ class CatalogTracker:
                 observed_filter,
             )
 
-    def get_closest_objects(self, ra, dec, n, catalogs: Optional[List[str]] = None):
+    def get_closest_objects(self, ra: float, dec: float, n: int, catalogs:Optional[list[str]] = None) -> list[CatObject]:
         """
         Takes the current catalog or a list of catalogs, gets the filtered
         objects and returns the n closest objects to ra/dec
         """
-        catalog_list: List[Catalog] = self._select_catalogs(catalogs=catalogs)
+        catalog_list = self._select_catalogs(catalogs=catalogs)
         catalog_list_flat = [
             obj for catalog in catalog_list for obj in catalog.filtered_objects.values()
         ]

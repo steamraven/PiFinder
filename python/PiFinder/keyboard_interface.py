@@ -1,5 +1,7 @@
 from time import sleep
+from multiprocessing import Queue
 import logging
+from typing import Optional
 
 
 class KeyboardInterface:
@@ -24,14 +26,14 @@ class KeyboardInterface:
     LNG_D = 203
     LNG_ENT = 204
 
-    def __init__(self, q=None):
+    def __init__(self, q:Optional["Queue[int]"]=None):
         self.q = q
 
     def run_keyboard(self):
         pass
 
     @staticmethod
-    def run_script(script_name, q):
+    def run_script(script_name: str, q: "Queue[int]"):
         """
         Runs a keyscript for automation/testing
         """

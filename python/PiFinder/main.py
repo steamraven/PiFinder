@@ -13,6 +13,7 @@ import time
 import queue
 import datetime
 import json
+from typing import Optional, Union, cast
 import uuid
 import os
 import sys
@@ -43,7 +44,7 @@ from PiFinder.ui.locate import UILocate
 from PiFinder.ui.config import UIConfig
 from PiFinder.ui.log import UILog
 
-from PiFinder.state import SharedStateObj
+from PiFinder.state import PartialSolution, SharedStateObj, Location, UIState
 
 from PiFinder.image_util import (
     subtract_background,
@@ -56,7 +57,7 @@ from PiFinder.image_util import (
 
 hardware_platform = "Pi"
 display_device: DeviceWrapper = DeviceWrapper(None, RED_RGB)
-keypad_pwm = None
+keypad_pwm: Optional["HardwarePWM"] = None
 
 
 def init_display():
@@ -98,7 +99,7 @@ def init_keypad_pwm():
         keypad_pwm.start(0)
 
 
-def set_brightness(level, cfg):
+def set_brightness(level:int, cfg: config.Config):
     """
     Sets oled/keypad brightness
     0-255
@@ -118,7 +119,7 @@ def set_brightness(level, cfg):
             "-3": 0.25,
             "Off": 0,
         }
-        keypad_brightness = cfg.get_option("keypad_brightness")
+        keypad_brightness: str = cfg.get_option("keypad_brightness")
         keypad_pwm.change_duty_cycle(level * 0.05 * keypad_offsets[keypad_brightness])
 
 
@@ -140,18 +141,18 @@ StateManager.register("SharedState", SharedStateObj)
 StateManager.register("NewImage", Image.new)
 
 
-def get_sleep_timeout(cfg):
+def get_sleep_timeout(cfg: config.Config):
     """
     returns the sleep timeout amount
     """
-    sleep_timeout_option = cfg.get_option("sleep_timeout")
+    sleep_timeout_option:str =  cfg.get_option("sleep_timeout")
     sleep_timeout = {"Off": 100000, "10s": 10, "30s": 30, "1m": 60}[
         sleep_timeout_option
     ]
     return sleep_timeout
 
 
-def main(script_name=None):
+def main(script_name: Optional[str] = None):
     """
     Get this show on the road!
     """
@@ -169,12 +170,12 @@ def main(script_name=None):
     test_image_path = os.path.join(root_dir, "test_images")
 
     # init queues
-    console_queue = Queue()
-    keyboard_queue = Queue()
-    gps_queue = Queue()
-    camera_command_queue = Queue()
-    solver_queue = Queue()
-    ui_queue = Queue()
+    console_queue: "Queue[str]" = Queue()
+    keyboard_queue: "Queue[int]"= Queue()
+    gps_queue:"Queue[tuple[str, Union[Location,str]]]" = Queue()
+    camera_command_queue: "Queue[str]" = Queue()
+    solver_queue:"Queue[PartialSolution]" = Queue()
+    ui_queue: "Queue[str]" = Queue()
 
     # init UI Modes
     command_queues = {
@@ -185,7 +186,7 @@ def main(script_name=None):
     cfg = config.Config()
 
     # Unit UI shared state
-    ui_state = {
+    ui_state: UIState = {
         "history_list": [],
         "observing_list": [],
         "target": None,
@@ -194,7 +195,7 @@ def main(script_name=None):
     ui_state["active_list"] = ui_state["history_list"]
 
     # init screen
-    screen_brightness = cfg.get_option("display_brightness")
+    screen_brightness: int = cfg.get_option("display_brightness")
     set_brightness(screen_brightness, cfg)
     console = UIConsole(display_device, None, None, command_queues, ui_state, cfg)
     console.write("Starting....")
@@ -236,7 +237,7 @@ def main(script_name=None):
 
         # Load last location, set lock to false
         tz_finder = TimezoneFinder()
-        initial_location = cfg.get_option("last_location")
+        initial_location: Location = cfg.get_option("last_location")
         initial_location["timezone"] = tz_finder.timezone_at(
             lat=initial_location["lat"], lng=initial_location["lon"]
         )

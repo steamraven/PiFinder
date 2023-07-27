@@ -13,11 +13,12 @@ from PIL import Image
 from PiFinder import config
 from PiFinder import utils
 from PiFinder.camera_interface import CameraInterface
+from PiFinder.state import SharedStateObj
 from pathlib import Path
 from shutil import copyfile
 import time
 from PiFinder.camera_interface import CameraInterface
-from typing import Dict, Tuple
+from multiprocessing import Queue
 import logging
 
 
@@ -72,14 +73,14 @@ class CameraASI(CameraInterface):
         )  # microseconds
         return Image.fromarray(self.camera.capture().astype("uint8"), "RGB")
 
-    def capture_file(self, filename) -> None:
+    def capture_file(self, filename: str) -> None:
         self.camera.set_control_value(asi.ASI_GAIN, gain)
         self.camera.set_control_value(asi.ASI_EXPOSURE, exposure_time)  # microseconds
         self.camera.capture(filename=filename)
 
     def set_camera_config(
         self, exposure_time: float, gain: float
-    ) -> Tuple[float, float]:
+    ) -> tuple[float, float]:
         self.exposure_time = exposure_time
         self.gain = gain
         return exposure_time, gain
@@ -88,7 +89,7 @@ class CameraASI(CameraInterface):
         return self.camType
 
 
-def get_images(shared_state, camera_image, command_queue, console_queue):
+def get_images(shared_state: SharedStateObj, camera_image: Image.Image, command_queue: "Queue[str]", console_queue: "Queue[str]"):
     """
     Instantiates the camera hardware
     then calls the universal image loop

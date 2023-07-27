@@ -7,6 +7,7 @@ This module contains all the UI Module classes
 import datetime
 import time
 import socket
+from typing import Any
 
 from PiFinder.ui.base import UIModule
 from PiFinder import sys_utils
@@ -65,7 +66,7 @@ class UIStatus(UIModule):
         },
     }
 
-    def __init__(self, *args):
+    def __init__(self, *args: Any): #TODO: expand arg list
         super().__init__(*args)
         self.version_txt = f"{utils.pifinder_dir}/version.txt"
         self.wifi_txt = f"{utils.pifinder_dir}/wifi_status.txt"
@@ -104,7 +105,7 @@ class UIStatus(UIModule):
         self.last_temp_time = 0
         self.last_IP_time = 0
 
-    def update_software(self, option):
+    def update_software(self, option: str):
         if option == "CANCEL":
             with open(self.version_txt, "r") as ver:
                 self._config_options["Software"]["value"] = ver.read()
@@ -117,16 +118,16 @@ class UIStatus(UIModule):
         else:
             self.message("Error on Upd", 3)
 
-    def set_key_brightness(self, option):
+    def set_key_brightness(self, option: str):
         self.command_queues["ui_queue"].put("set_brightness")
         self.config_object.set_option("keypad_brightness", option)
         return False
 
-    def set_sleep_timeout(self, option):
+    def set_sleep_timeout(self, option: str):
         self.config_object.set_option("sleep_timeout", option)
         return False
 
-    def side_switch(self, option):
+    def side_switch(self, option: str):
         if option == "CANCEL":
             self._config_options["Mnt Side"]["value"] = self.config_object.get_option(
                 "screen_direction"
@@ -137,7 +138,7 @@ class UIStatus(UIModule):
         self.config_object.set_option("screen_direction", option)
         sys_utils.restart_pifinder()
 
-    def wifi_switch(self, option):
+    def wifi_switch(self, option: str):
         with open(self.wifi_txt, "r") as wfs:
             current_state = wfs.read()
         if option == current_state or option == "CANCEL":
@@ -151,7 +152,7 @@ class UIStatus(UIModule):
             self.message("Switch to Cli", 10)
             sys_utils.go_wifi_cli()
 
-    def shutdown(self, option):
+    def shutdown(self, option: str):
         if option == "System":
             self.message("Shutting down", 10)
             sys_utils.shutdown()
@@ -159,7 +160,7 @@ class UIStatus(UIModule):
             self._config_options["Shutdown"]["value"] = ""
             return False
 
-    def restart(self, option):
+    def restart(self, option: str):
         if option == "PiFi":
             self.message("Restarting", 10)
             sys_utils.restart_pifinder()
@@ -235,10 +236,10 @@ class UIStatus(UIModule):
             except socket.gaierror:
                 pass
 
-    def update(self, force=False):
+    def update(self, force: bool=False):
         self.update_status_dict()
         self.draw.rectangle([0, 0, 128, 128], fill=self.colors.get(0))
-        lines = []
+        lines: list[str] = []
         for k, v in self.status_dict.items():
             line = f"{k: >7}:{v: >10}"
             lines.append(line)

@@ -9,18 +9,22 @@ function
 """
 from PIL import Image, ImageChops
 import numpy as np
+import numpy.typing as npt
+from typing import Any, NamedTuple, cast
 import scipy.ndimage
 from enum import Enum
 import functools
-from collections import namedtuple
 import logging
 
+class ColorMask(NamedTuple):
+    mask: npt.NDArray[np.int32]
+    mode: str
 
-ColorMask = namedtuple("ColorMask", ["mask", "mode"])
 RED_RGB: ColorMask = ColorMask(np.array([1, 0, 0]), "RGB")
 RED_BGR: ColorMask = ColorMask(np.array([0, 0, 1]), "BGR")
 GREY: ColorMask = ColorMask(np.array([1, 1, 1]), "RGB")
 
+Color = tuple[int,int,int, int]
 
 class Colors:
     def __init__(self, color_mask: ColorMask):
@@ -30,14 +34,14 @@ class Colors:
         self.red_image_rgb = Image.new("RGB", (128, 128), self.get(255))
 
     @functools.cache
-    def get(self, color_intensity):
+    def get(self, color_intensity: int):
         arr = self.color_mask * color_intensity
         np.append(arr, 254)
         result = tuple(arr)
         return result
 
     # @functools.cache
-    def get_transparent(self, color_intensity, transparency: int):
+    def get_transparent(self, color_intensity: int, transparency: int):
         intensity_mask = self.color_mask * color_intensity
         transp_mask = np.append(intensity_mask, transparency)
         result = tuple(transp_mask)
@@ -48,11 +52,11 @@ class Colors:
 class DeviceWrapper:
     colors: Colors
 
-    def __init__(self, device, color_mask: ColorMask):
+    def __init__(self, device: Any, color_mask: ColorMask):
         self.device = device
         self.colors = Colors(color_mask)
 
-    def set_brightness(self, level):
+    def set_brightness(self, level: int):
         """
         Sets oled brightness
         0-255
@@ -60,30 +64,30 @@ class DeviceWrapper:
         self.device.contrast(level)
 
 
-def make_red(in_image, colors):
+def make_red(in_image: Image.Image, colors: Colors):
     return ImageChops.multiply(in_image, colors.red_image)
 
 
-def gamma_correct_low(in_value):
+def gamma_correct_low(in_value: int):
     return gamma_correct(in_value, 0.9)
 
 
-def gamma_correct_med(in_value):
+def gamma_correct_med(in_value: int):
     return gamma_correct(in_value, 0.7)
 
 
-def gamma_correct_high(in_value):
+def gamma_correct_high(in_value: int):
     return gamma_correct(in_value, 0.5)
 
 
-def gamma_correct(in_value, gamma):
+def gamma_correct(in_value: int, gamma: float):
     in_value = float(in_value) / 255
     out_value = pow(in_value, gamma)
     out_value = int(255 * out_value)
     return out_value
 
 
-def subtract_background(image):
+def subtract_background(image: Image.Image):
     image = np.asarray(image, dtype=np.float32)
     if image.ndim == 3:
         assert image.shape[2] in (1, 3), "Colour image must have 1 or 3 colour channels"
