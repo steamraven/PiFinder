@@ -97,7 +97,7 @@ def get_display_image(catalog_object: SimpleCatObject, source: str, fov: float, 
                 512 + fov_size,
             )
         )
-        return_image = return_image.resize((128, 128), Image.LANCZOS)
+        return_image = return_image.resize((128, 128), Image.Resampling.LANCZOS)
 
         # RED
         return_image = return_image.convert("RGBA")
