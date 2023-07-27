@@ -56,6 +56,7 @@ def solver(shared_state: SharedStateObj, solver_queue: "Queue[PartialSolution]",
 
                 solved |= new_solve
 
+                assert "T_extract" in solved and "T_solve" in solved, "Tetra3 asserts these always included and set"
                 total_tetra_time = solved["T_extract"] + solved["T_solve"]
                 if total_tetra_time > 1000:
                     console_queue.put(f"SLV: Long: {total_tetra_time}")

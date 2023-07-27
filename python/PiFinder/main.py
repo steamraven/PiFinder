@@ -375,8 +375,10 @@ def main(script_name: Optional[str] = None):
                 try:
                     gps_msg, gps_content = gps_queue.get(block=False)
                     if gps_msg == "fix":
+                        assert isinstance(gps_content, dict), "gps_content should be dict if msg is 'fix'"
                         if gps_content["lat"] + gps_content["lon"] != 0:
                             location = shared_state.location()
+                            assert location, "default location set in default config"
                             location["lat"] = gps_content["lat"]
                             location["lon"] = gps_content["lon"]
                             location["altitude"] = gps_content["altitude"]
@@ -392,6 +394,7 @@ def main(script_name: Optional[str] = None):
                                 location["gps_lock"] = True
                             shared_state.set_location(location)
                     if gps_msg == "time":
+                        assert isinstance(gps_content, str), "gps_content should be str if msg ls 'time'"
                         gps_dt = datetime.datetime.fromisoformat(
                             gps_content.replace("Z", "")
                         )

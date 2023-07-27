@@ -161,6 +161,7 @@ class UIModule:
             if self.shared_state:
                 if self.shared_state.solve_state():
                     solution = self.shared_state.solution()
+                    assert solution, "solution should not be none if solve_state is true"
                     constellation = solution["constellation"]
                     self.draw.text(
                         (70, 1),

@@ -203,6 +203,7 @@ class UILog(UIModule):
 
         # Distance to target
         solution = self.shared_state.solution()
+        assert solution, "solution should not be none if solve_state is true"
         pointing_pos = ICRF.from_radec(
             ra_hours=Angle(degrees=solution["RA"])._hours,
             dec_degrees=solution["Dec"],

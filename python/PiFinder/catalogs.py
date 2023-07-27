@@ -133,6 +133,8 @@ class Catalog:
                     obj["dec"],
                     alt_only=True,
                 )
+                assert isinstance(obj_altitude, float), "obj_altitude should be a singl float due to alt_only=True"
+                assert isinstance(altitude_filter, float), "altitude_filter should be float if fast_aa"
                 if obj_altitude < altitude_filter:
                     include_obj = False
 

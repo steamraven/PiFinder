@@ -171,6 +171,7 @@ class UILocate(UIModule):
         az/alt from current position
         to target
         """
+        assert self.ui_state["target"], "aim_degrees should only bi called with a target"
         solution = self.shared_state.solution()
         location = self.shared_state.location()
         dt = self.shared_state.datetime()

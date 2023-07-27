@@ -75,6 +75,7 @@ class Skyfield_utils:
         """
         t = self.ts.from_datetime(dt)
 
+        assert self.observer_loc, "altaz_to_radic should only be called after set_location"
         observer = self.observer_loc.at(t)
         a = observer.from_altaz(alt_degrees=alt, az_degrees=az)
         ra, dec, distance = a.radec(epoch=t)
@@ -87,6 +88,7 @@ class Skyfield_utils:
         """
         t = self.ts.from_datetime(dt)
 
+        assert self.observer_loc, "set_location must be called before radec_to_altaz"
         observer = self.observer_loc.at(t)
         sky_pos = Star(
             ra=Angle(degrees=ra),
@@ -161,6 +163,7 @@ def integrator(shared_state: SharedStateObj, solver_queue: "Queue[PartialSolutio
 
             if next_image_solve:
                 solved = next_image_solve
+                assert solved["RA"] and solved["Dec"], "RA and Dec set in solver"
                 solved["solve_source"] = "CAM"
 
                 # see if we can generate alt/az
@@ -194,7 +197,9 @@ def integrator(shared_state: SharedStateObj, solver_queue: "Queue[PartialSolutio
                 imu = shared_state.imu()
                 if imu:
                     dt = shared_state.datetime()
+                    assert dt is not None, "shared_state.datetime() should not be None after being set"
                     if last_image_solve and last_image_solve["Alt"]:
+                        assert last_image_solve["Az"], "Az should be set at the same time as Alt"
                         # If we have alt, then we have
                         # a position/time
 
@@ -228,6 +233,7 @@ def integrator(shared_state: SharedStateObj, solver_queue: "Queue[PartialSolutio
 
             # Is the solution new?
             if solved["RA"] and solved["solve_time"] > last_solve_time:
+                assert solved["Dec"] is not None, "RA and Dec are set by solver"
                 last_solve_time = time.time()
                 # Update remaining solved keys
                 solved["constellation"] = sf_utils.radec_to_constellation(

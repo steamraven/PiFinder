@@ -147,6 +147,7 @@ class UIChart(UIModule):
                 * 32
             )
             self.solution = self.shared_state.solution()
+            assert self.solution, "shared_state solution set is shared_state.solve_state() is true"
             last_solve_time = self.solution["solve_time"]
             if (
                 last_solve_time > self.last_update

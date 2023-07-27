@@ -166,6 +166,7 @@ class UICatalog(UIModule):
     def push_near(self, obj_amount: Union[str, int]):
         self._config_options["Near Obj."]["value"] = ""
         if obj_amount != "CANCEL":
+            assert isinstance(obj_amount, int)
             solution = self.shared_state.solution()
             if not solution:
                 self.message("No Solve!", 1)
@@ -369,6 +370,7 @@ class UICatalog(UIModule):
                 desc.draw((0, posy))
 
         else:
+            assert self.object_image, "object_image should be set by update_object_info, which is always called before this update"
             self.screen.paste(self.object_image)
         return self.screen_update()
 
@@ -426,6 +428,7 @@ class UICatalog(UIModule):
                 obj["dec"],
                 alt_only=True,
             )
+            assert isinstance(obj_alt, float), "radic_to_altaz should return a float of alt_only=true"
             return obj_alt
 
         return None

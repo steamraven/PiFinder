@@ -175,9 +175,11 @@ class UIStatus(UIModule):
         """
         if self.shared_state.solve_state():
             solution = self.shared_state.solution()
+            assert solution, "solution should not be none if solve_state is true"
             # last solve time
             if solution["solve_source"] == "CAM":
                 stars_matched = solution["Matches"]
+                assert stars_matched, "solution['Matches'] should be set if solve_source is CAM"
             else:
                 stars_matched = "--"
             self.status_dict["LST SLV"] = (
@@ -211,6 +213,7 @@ class UIStatus(UIModule):
         dt = self.shared_state.datetime()
         local_dt = self.shared_state.local_datetime()
         if dt:
+            assert local_dt, "local_datetime should be set if datetime set"
             self.status_dict["LCL TM"] = "     " + local_dt.time().isoformat()[:8]
             self.status_dict["UTC TM"] = "     " + dt.time().isoformat()[:8]
 

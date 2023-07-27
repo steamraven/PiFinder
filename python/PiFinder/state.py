@@ -128,6 +128,7 @@ class SharedStateObj:
     def datetime(self):
         if self.__datetime is None:
             return self.__datetime
+        assert self.__datetime_time,  "__datatome_time should be set when __datetime is set"
         return self.__datetime + datetime.timedelta(
             seconds=time.time() - self.__datetime_time
         )
@@ -140,6 +141,8 @@ class SharedStateObj:
             return self.datetime()
 
         dt = self.datetime()
+        assert dt, "datetime() is not none if __datetime is not None"
+        assert "timezone" in self.__location and self.__location["timezone"] is not None, "timezone set from last_location in config"
         return dt.astimezone(pytz.timezone(self.__location["timezone"]))
 
     def set_datetime(self, dt: "datetime.datetime"):
@@ -154,6 +157,7 @@ class SharedStateObj:
             # only reset if there is some significant diff
             # as some gps recievers send multiple updates that can
             # rewind and fastforward the clock
+            assert self.__datetime_time, "__datatome_time should be set when __datetime is set"
             curtime = self.__datetime + datetime.timedelta(
                 seconds=time.time() - self.__datetime_time
             )
