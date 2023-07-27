@@ -76,7 +76,7 @@ def resolve_object(catalog_numbers: list[str], connection:sqlite3.Connection):
                 """
         ).fetchone()
         if _object:
-            return dict(_object)
+            return cast(CatObject, dict(_object))
     print("Failed")
     return None
 

@@ -52,7 +52,7 @@ class Skyfield_utils:
 
     def __init__(self):
         load = Loader(utils.astro_data_dir)
-        self.eph = load("de421.bsp")
+        self.eph = cast(SpiceKernel, load("de421.bsp"))
         self.earth = self.eph["earth"]
         self.observer_loc = None
         self.constellation_map = load_constellation_map()
@@ -89,7 +89,7 @@ class Skyfield_utils:
         t = self.ts.from_datetime(dt)
 
         assert self.observer_loc, "set_location must be called before radec_to_altaz"
-        observer = self.observer_loc.at(t)
+        observer = cast(Barycentric, self.observer_loc.at(t))
         sky_pos = Star(
             ra=Angle(degrees=ra),
             dec_degrees=dec,
@@ -162,7 +162,7 @@ def integrator(shared_state: SharedStateObj, solver_queue: "Queue[PartialSolutio
                 pass
 
             if next_image_solve:
-                solved = next_image_solve
+                solved = cast(Solving, next_image_solve)
                 assert solved["RA"] and solved["Dec"], "RA and Dec set in solver"
                 solved["solve_source"] = "CAM"
 
@@ -241,7 +241,7 @@ def integrator(shared_state: SharedStateObj, solver_queue: "Queue[PartialSolutio
                 )
 
                 # add solution
-                shared_state.set_solution(solved)
+                shared_state.set_solution(cast(Solution, solved))
                 shared_state.set_solve_state(True)
                 last_solved = solved
     except EOFError:

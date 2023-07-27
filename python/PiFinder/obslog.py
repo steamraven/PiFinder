@@ -134,7 +134,7 @@ class Observation_session:
             "select last_insert_rowid() as id"
         ).fetchone()["id"]
 
-        return session_uuid, observation_id
+        return session_uuid, cast(int, observation_id)
 
 
 def get_logs_for_object(obj_record:CatObject):

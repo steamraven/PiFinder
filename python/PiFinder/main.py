@@ -215,7 +215,7 @@ def main(script_name: Optional[str] = None):
     gps_process.start()
 
     with StateManager() as manager:
-        shared_state = manager.SharedState()
+        shared_state: SharedStateObj = cast(SharedStateObj, manager.SharedState())  # type: ignore
         console.set_shared_state(shared_state)
 
         # multiprocessing.set_start_method('spawn')
@@ -245,7 +245,7 @@ def main(script_name: Optional[str] = None):
 
         console.write("   Camera")
         console.update()
-        camera_image = manager.NewImage("RGB", (512, 512))
+        camera_image = cast(Image.Image, manager.NewImage("RGB", (512, 512)))  # type: ignore
         image_process = Process(
             target=camera.get_images,
             args=(shared_state, camera_image, camera_command_queue, console_queue),
@@ -464,7 +464,7 @@ def main(script_name: Optional[str] = None):
                                     # only activate this if current module
                                     # has config options
                                     ui_mode_index = 0
-                                    current_module = ui_modes[0]
+                                    current_module = cast(UIConfig, ui_modes[0])
                                     current_module.set_module(target_module)
                                     current_module.active()
 
@@ -524,7 +524,7 @@ def main(script_name: Optional[str] = None):
                             if ui_mode_index == 0:
                                 # return control to original module
                                 for i, ui_class in enumerate(ui_modes):
-                                    if ui_class == ui_modes[0].get_module():
+                                    if ui_class == cast(UIConfig, ui_modes[0]).get_module():
                                         ui_mode_index = i
                                         current_module = ui_class
                                         current_module.update_config()

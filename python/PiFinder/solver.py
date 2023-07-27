@@ -50,9 +50,9 @@ def solver(shared_state: SharedStateObj, solver_queue: "Queue[PartialSolution]",
             if last_image_metadata["exposure_end"] > (last_solve_time):
                 solve_image = camera_image.copy()
 
-                new_solve = t3.solve_from_image(
+                new_solve = cast(Solving, t3.solve_from_image(
                     solve_image, fov_estimate=10.2, fov_max_error=0.5, solve_timeout=100
-                )
+                ))
 
                 solved |= new_solve
 
@@ -68,7 +68,7 @@ def solver(shared_state: SharedStateObj, solver_queue: "Queue[PartialSolution]",
                         solved["imu_pos"] = None
                     solved["solve_time"] = time.time()
                     solved["cam_solve_time"] = time.time()
-                    solver_queue.put(solved)
+                    solver_queue.put(cast(PartialSolution, solved))
 
                 last_solve_time = last_image_metadata["exposure_end"]
     except EOFError:

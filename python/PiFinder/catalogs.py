@@ -62,7 +62,7 @@ class Catalog:
             self.desc = cat_data["desc"]
         else:
             logging.debug(f"no catalog data for {self.name}")
-        self.objects = {int(dict(row)["sequence"]): dict(row) for row in cat_objects}
+        self.objects = cast(dict[int, CatObject], {int(dict(row)["sequence"]): dict(row) for row in cat_objects})
         self.objects_keys_sorted = self._get_sorted_keys(self.objects)
         self.filtered_objects = self.objects
         self.filtered_objects_keys_sorted = self.objects_keys_sorted
@@ -381,7 +381,7 @@ class CatalogTracker:
         ]
         objects_bt = BallTree(object_radecs, leaf_size=4, metric="haversine")
         query = [[np.deg2rad(ra), np.deg2rad(dec)]]
-        _dist, obj_ind = objects_bt.query(query, k=n)
+        _dist, obj_ind = cast(tuple[Any, tuple[list[int]]], objects_bt.query(query, k=n))   # Pandas type hints are hard
         return [catalog_list_flat[x] for x in obj_ind[0]]
 
     def __repr__(self):

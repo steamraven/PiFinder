@@ -140,7 +140,7 @@ class UICatalog(UIModule):
 
     def update_config(self) -> bool:
         if self.texts.get("aka"):
-            self.texts["aka"].set_scrollspeed(self._get_scrollspeed_config())
+            cast(TextLayouterScroll,self.texts["aka"]).set_scrollspeed(self._get_scrollspeed_config())
         # re-filter if needed
         self.catalog_tracker.filter()
 
@@ -466,7 +466,7 @@ class UICatalog(UIModule):
         """
         cat_object = self.catalog_tracker.get_current_object()
         if cat_object:
-            self.ui_state["target"] = dict(cat_object)
+            self.ui_state["target"] = cast(CatObject, dict(cat_object))
             if len(self.ui_state["history_list"]) == 0:
                 self.ui_state["history_list"].append(self.ui_state["target"])
             elif self.ui_state["history_list"][-1] != self.ui_state["target"]:

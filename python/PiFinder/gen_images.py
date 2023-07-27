@@ -50,7 +50,7 @@ def get_ngc_aka(catalog_object: cat_images.SimpleCatObject):
         and sequence = "{aka_sequence}"
     """
     ).fetchone()
-    return aka_rec
+    return cast(CatObject, aka_rec)
 
 
 def resolve_image_name(catalog_object: cat_images.SimpleCatObject, source: str):

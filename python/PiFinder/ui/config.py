@@ -82,7 +82,7 @@ class UIConfig(UIModule):
                 # just show values
                 i = 0
                 for k, v in self.__config.items():
-                    value = v["value"]
+                    value = cast(Value, v["value"])
                     if isinstance(value, list):
                         if len(value) == 1:
                             value = value[0]

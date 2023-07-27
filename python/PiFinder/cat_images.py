@@ -44,7 +44,7 @@ def get_ngc_aka(catalog_object: SimpleCatObject):
         and common_name like "NGC%"
     """
     ).fetchone()
-    return aka_rec
+    return cast(AKA, aka_rec)
 
 
 def get_display_image(catalog_object: SimpleCatObject, source: str, fov: float, roll: float, colors: image_util.Colors) -> Image.Image:

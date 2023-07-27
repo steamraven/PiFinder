@@ -45,7 +45,7 @@ class Imu:
         if quat[0] + quat[1] + quat[2] + quat[3] == 0:
             return 0, 0, 0
         rot = Rotation.from_quat(quat)
-        rot_euler = rot.as_euler("xyz", degrees=True)
+        rot_euler = cast(MutableSequence[float], rot.as_euler("xyz", degrees=True))
         # convert from -180/180 to 0/360
         rot_euler[0] += 180
         rot_euler[1] += 180
@@ -64,7 +64,7 @@ class Imu:
         self.calibration = self.sensor.calibration_status[1]
         if self.calibration == 0:
             return True
-        quat = self.sensor.quaternion
+        quat = cast(Union[Quaternion, tuple[None, None, None, None]], self.sensor.quaternion)
         if quat[0] is None:
             print("IMU: Failed to get sensor values")
             return
@@ -131,4 +131,4 @@ def imu_monitor(shared_state: Optional[SharedStateObj], console_queue: "Queue[st
                 console_queue.put("IMU: NDOF Calibrated!")
 
         if shared_state is not None and imu_calibrated:
-            shared_state.set_imu(imu_data)
+            shared_state.set_imu(cast( IMUData, imu_data))

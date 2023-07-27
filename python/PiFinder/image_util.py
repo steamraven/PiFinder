@@ -38,7 +38,7 @@ class Colors:
         arr = self.color_mask * color_intensity
         np.append(arr, 254)
         result = tuple(arr)
-        return result
+        return cast(Color, result)
 
     # @functools.cache
     def get_transparent(self, color_intensity: int, transparency: int):
@@ -46,7 +46,7 @@ class Colors:
         transp_mask = np.append(intensity_mask, transparency)
         result = tuple(transp_mask)
         logging.debug(f"get_transparent: {result}")
-        return result
+        return cast(Color, result)
 
 
 class DeviceWrapper:

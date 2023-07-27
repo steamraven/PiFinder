@@ -53,9 +53,9 @@ class Starfield:
         self.set_mag_limit(mag_limit)
         # Prefilter here for mag 9, just to make sure we have enough
         # for any plot.  Actual mag limit is enforced at plot time.
-        bright_stars = self.raw_stars.magnitude <= 7.5
+        bright_stars = cast("pandas.Series[float]", self.raw_stars.magnitude) <= 7.5   # pandas type hints are hard
         self.stars = self.raw_stars[bright_stars]
-        self.star_positions = self.earth.at(self.t).observe(
+        self.star_positions = cast(Barycentric, self.earth.at(self.t)).observe(
             Star.from_dataframe(self.stars)
         )
         self.set_fov(fov)
@@ -95,7 +95,7 @@ class Starfield:
             ra=Angle(degrees=ra),
             dec_degrees=dec,
         )
-        center = self.earth.at(self.t).observe(sky_pos)
+        center = cast(Barycentric, self.earth.at(self.t)).observe(sky_pos)
         projection = build_stereographic_projection(center)
 
         markers = pandas.DataFrame(
@@ -104,7 +104,7 @@ class Starfield:
 
         # required, use the same epoch as stars
         markers["epoch_year"] = 1991.25
-        marker_positions = self.earth.at(self.t).observe(Star.from_dataframe(markers))
+        marker_positions = cast(Barycentric, self.earth.at(self.t)).observe(Star.from_dataframe(markers))
 
         markers["x"], markers["y"] = projection(marker_positions)
 
@@ -117,9 +117,9 @@ class Starfield:
         image_scale = int(target_size / limit)
         pixel_scale = image_scale / 2
 
-        markers_x = list(markers["x"])
-        markers_y = list(markers["y"])
-        markers_symbol = list(markers["symbol"])
+        markers_x = list(cast("pandas.Series[float]", markers["x"]))
+        markers_y = list(cast("pandas.Series[float]", markers["y"]))
+        markers_symbol = list(cast("pandas.Series[str]", markers["symbol"]))
 
         ret_list = []
         for i, x in enumerate(markers_x):
@@ -167,7 +167,7 @@ class Starfield:
             ra=Angle(degrees=ra),
             dec_degrees=dec,
         )
-        center = self.earth.at(self.t).observe(sky_pos)
+        center = cast(Barycentric, self.earth.at(self.t)).observe(sky_pos)
         projection = build_stereographic_projection(center)
 
         # Time to build the figure!
@@ -196,8 +196,8 @@ class Starfield:
             edges_star2 = [star2 for star1, star2 in edges]
 
             # edges in plot space
-            xy1 = stars[["x", "y"]].loc[edges_star1].values
-            xy2 = stars[["x", "y"]].loc[edges_star2].values
+            xy1 = cast(Sequence[tuple[float, float]], stars[["x", "y"]].loc[edges_star1].values)  # pandas and numpy type hints are hard
+            xy2 = cast(Sequence[tuple[float, float]], stars[["x", "y"]].loc[edges_star2].values)
 
             for i, start_pos in enumerate(xy1):
                 end_pos = xy2[i]
@@ -209,7 +209,11 @@ class Starfield:
                     (start_x, start_y, end_x, end_y), fill=(constellation_brightness)
                 )
 
-        for x, y, mag in zip(stars["x"], stars["y"], stars["magnitude"]):
+        for x, y, mag in zip(
+                            cast(Sequence[float], stars["x"]), 
+                            cast(Sequence[float], stars["y"]),
+                            cast(Sequence[float], stars["magnitude"])
+        ):
             x_pos = x * pixel_scale + target_size
             y_pos = y * -1 * pixel_scale + target_size
             if (
