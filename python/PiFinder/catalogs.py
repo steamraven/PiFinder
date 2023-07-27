@@ -121,8 +121,10 @@ class Catalog:
             except (ValueError, TypeError):
                 obj_mag = 99
 
-            if magnitude_filter != "None" and obj_mag >= magnitude_filter:
-                include_obj = False
+            if magnitude_filter != "None":
+                assert isinstance(magnitude_filter, float)
+                if obj_mag >=  magnitude_filter:
+                    include_obj = False
 
             if type_filter != ["None"] and obj["obj_type"] not in type_filter:
                 include_obj = False
@@ -327,8 +329,7 @@ class CatalogTracker:
         return result
 
     def _get_catalog_name(self, catalog: Optional[str]) -> str:
-        catalog: str = catalog or self.current_catalog_name
-        return catalog
+        return catalog or self.current_catalog_name
 
     def _select_catalog(self, catalog: Optional[str]) -> Optional[Catalog]:
         catalog = self._get_catalog_name(catalog)

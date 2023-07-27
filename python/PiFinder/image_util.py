@@ -81,31 +81,31 @@ def gamma_correct_high(in_value: int):
 
 
 def gamma_correct(in_value: int, gamma: float):
-    in_value = float(in_value) / 255
-    out_value = pow(in_value, gamma)
+    value = float(in_value) / 255
+    out_value = pow(value, gamma)
     out_value = int(255 * out_value)
     return out_value
 
 
 def subtract_background(image: Image.Image):
-    image = np.asarray(image, dtype=np.float32)
-    if image.ndim == 3:
-        assert image.shape[2] in (1, 3), "Colour image must have 1 or 3 colour channels"
-        if image.shape[2] == 3:
+    image_array = np.asarray(image, dtype=np.float32)
+    if image_array.ndim == 3:
+        assert image_array.shape[2] in (1, 3), "Colour image must have 1 or 3 colour channels"
+        if image_array.shape[2] == 3:
             # Convert to greyscale
-            image = (
-                image[:, :, 0] * 0.299 + image[:, :, 1] * 0.587 + image[:, :, 2] * 0.114
+            image_array = (
+                image_array[:, :, 0] * 0.299 + image_array[:, :, 1] * 0.587 + image_array[:, :, 2] * 0.114
             )
         else:
             # Delete empty dimension
-            image = image.squeeze(axis=2)
+            image_array = image_array.squeeze(axis=2)
     else:
-        assert image.ndim == 2, "Image must be 2D or 3D array"
+        assert image_array.ndim == 2, "Image must be 2D or 3D array"
 
-    image = image - scipy.ndimage.filters.uniform_filter(
-        image, size=25, output=image.dtype
+    image_array = image_array - scipy.ndimage.uniform_filter(
+        image_array, size=25, output=image_array.dtype
     )
-    return Image.fromarray(image)
+    return Image.fromarray(image_array) 
 
 
 def convert_image_to_mode(image: Image.Image, mode: str):

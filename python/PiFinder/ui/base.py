@@ -190,7 +190,9 @@ class UIModule:
                     )
 
                 # GPS status
-                if self.shared_state.location()["gps_lock"]:
+                location = self.shared_state.location()
+                assert location is not None, "Default location set in default_config.json"
+                if location["gps_lock"]:
                     fg = self.colors.get(0)
                     bg = self.colors.get(64)
                 else:
