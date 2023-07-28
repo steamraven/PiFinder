@@ -8,16 +8,13 @@ This module is the camera
 * Takes full res images on demand
 
 """
+from multiprocessing import Queue
 import time
 from PIL import Image
 from PiFinder import config
-from PiFinder import utils
-from PiFinder.camera_interface import CameraInterface
 from pathlib import Path
-from shutil import copyfile
-import time
 from PiFinder.camera_interface import CameraInterface
-from typing import Dict, Tuple
+from PiFinder.state import SharedStateObj
 import logging
 
 import zwoasi as asi
@@ -25,7 +22,7 @@ import zwoasi as asi
 class CameraASI(CameraInterface):
     """The camera class for PI cameras.  Implements the CameraInterface interface."""
 
-    def __init__(self, exposure_time, gain) -> None:
+    def __init__(self, exposure_time: int, gain: float, library: Path):
         # find a camera
         # asi.init("/lib/zwoasi/armv7/libASICamera2.so")  # Initialize the ASI library
         asi.init(
@@ -71,7 +68,7 @@ class CameraASI(CameraInterface):
         )  # microseconds
         return Image.fromarray(self.camera.capture().astype("uint8"), "RGB")
 
-    def capture_file(self, filename) -> None:
+    def capture_file(self, filename: str) -> None:
         self.camera.set_control_value(asi.ASI_GAIN, self.gain)
         self.camera.set_control_value(asi.ASI_EXPOSURE, self.exposure_time)  # microseconds
         self.camera.capture(filename=filename)
@@ -87,15 +84,15 @@ class CameraASI(CameraInterface):
         return self.camType
 
 
-def get_images(shared_state, camera_image, command_queue, console_queue):
+def get_images(shared_state: SharedStateObj, camera_image: Image.Image, command_queue: "Queue[str]", console_queue: "Queue[str]"):
     """
     Instantiates the camera hardware
     then calls the universal image loop
     """
 
     cfg = config.Config()
-    exposure_time = cfg.get_option("camera_exp")
-    analog_gain = cfg.get_option("camera_gain")
+    exposure_time: int = cfg.get_option("camera_exp")
+    analog_gain: int = cfg.get_option("camera_gain")
     camera_hardware = CameraASI(exposure_time, analog_gain)
     camera_hardware.get_image_loop(
         shared_state, camera_image, command_queue, console_queue, cfg
