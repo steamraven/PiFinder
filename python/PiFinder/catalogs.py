@@ -110,6 +110,8 @@ class Catalog:
         if observed_filter != "Any":
             # setup
             observed_list = obslog.get_observed_objects()
+        else:
+            observed_list = []
 
         for key, obj in self.objects.items():
             # print(f"filtering {obj}")

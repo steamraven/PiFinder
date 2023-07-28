@@ -64,7 +64,8 @@ class KeyboardServer(KeyboardInterface):
             response.content_type = "image/png"  # adjust for your image format
 
             img_byte_arr = io.BytesIO()
-            img.save(img_byte_arr, format="PNG")  # adjust for your image format
+            if img is not None:
+                img.save(img_byte_arr, format="PNG")  # adjust for your image format
             img_byte_arr = img_byte_arr.getvalue()
 
             return img_byte_arr

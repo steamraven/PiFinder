@@ -26,7 +26,7 @@ class CameraInterface:
         pass
 
     def capture(self) -> Image.Image:
-        return None
+        raise NotImplemented
 
     def capture_file(self, filename: str) -> None:
         pass
@@ -34,10 +34,10 @@ class CameraInterface:
     def set_camera_config(
         self, exposure_time: float, gain: float
     ) -> tuple[float, float]:
-        pass
+        raise NotImplemented
 
     def get_cam_type(self) -> str:
-        pass
+        raise NotImplemented
 
     def get_image_loop(
         self, shared_state: SharedStateObj, camera_image: Image.Image, command_queue: "Queue[str]", console_queue: "Queue[str]", cfg: config.Config
@@ -88,7 +88,7 @@ class CameraInterface:
 
                 # see if we moved during exposure
                 moved = False
-                if imu_start and imu_end:
+                if imu_start and imu_start["pos"] and imu_end and imu_end["pos"]:
                     reading_diff = (
                         abs(imu_start["pos"][0] - imu_end["pos"][0])
                         + abs(imu_start["pos"][1] - imu_end["pos"][1])

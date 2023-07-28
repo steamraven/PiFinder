@@ -99,7 +99,7 @@ def read_list(name: str) -> Result:
     list_catalog: list[CatObject] = []
     objects_parsed = 0
     in_object = False
-    catalog_numbers: list[str]
+    catalog_numbers: list[str] = []
     with open(OBSLIST_DIR + name + ".skylist", "r") as skylist:
         for l in skylist:
             l = l.strip()
