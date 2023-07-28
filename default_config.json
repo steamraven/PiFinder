@@ -10,6 +10,7 @@
     },
     "camera_exp": 750000,
     "camera_gain": 20,
+    "camera_library": "/lib/zwoasi/armv7/libASICamera2.so",
     "screen_direction": "right",
     "solver_debug": 0,
     "sleep_timeout": "30s",

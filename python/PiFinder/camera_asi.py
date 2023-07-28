@@ -23,11 +23,10 @@ class CameraASI(CameraInterface):
     """The camera class for PI cameras.  Implements the CameraInterface interface."""
 
     def __init__(self, exposure_time: int, gain: float, library: Path):
-        # find a camera
-        # asi.init("/lib/zwoasi/armv7/libASICamera2.so")  # Initialize the ASI library
         asi.init(
-            "/Users/mike/Downloads/ASI_Camera_SDK/ASI_linux_mac_SDK_V1.29/lib/armv8/libASICamera2.so"
+            str(library.absolute())
         )  # Initialize the ASI library
+        # find a camera
         num_cameras = asi.get_num_cameras()  # Get the number of connected cameras
         if num_cameras == 0:
             #self.handpad.display("Error:", " no camera found", "")
@@ -93,7 +92,8 @@ def get_images(shared_state: SharedStateObj, camera_image: Image.Image, command_
     cfg = config.Config()
     exposure_time: int = cfg.get_option("camera_exp")
     analog_gain: int = cfg.get_option("camera_gain")
-    camera_hardware = CameraASI(exposure_time, analog_gain)
+    library_path = Path(cfg.get_option("camera_library_path"))
+    camera_hardware = CameraASI(exposure_time, analog_gain, library_path)
     camera_hardware.get_image_loop(
         shared_state, camera_image, command_queue, console_queue, cfg
     )
